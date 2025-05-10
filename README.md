@@ -87,26 +87,9 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
   - the gamepad's "start" button is configured as a `BUTTON` for "trigger" input
 * PlatformIO env `PICOW` -- the Raspberry Pi PicoW wiring as mentioned in [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
   -  a ST7789 2.8 inch 240x320 SPI TFT LCD module is used, with a FT6336U capacitive touch layer
-
-      |Raspberry Pi Pico|SPI TFT LCD |
-      |-----------------|------------|
-      | 3V3             | VCC        |
-      | GND             | GND        |
-      | GP21            | BL         |
-      | GP17            | CS         |
-      | GP16            | RS / DC    |
-      | GP18            | CLK / SCLK |
-      | GP19            | SDA / MOSI |
-      | GP20            | RST        |
-      | GP5             | TP_SCL     |
-      | GP4             | TP_SDA     |
-      | GP6             | TP_INT     |
-      | GP7             | TP_RST     |
-      | GP15            | SPEAKER    |
-      | GND             | SPEAKER    |
-
   - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
-  - a speaker is attached to it -- one end of the speaker is connected to `GND` and the other end is connected to `GP15`
+  - a speaker is attached to it
+  - for more details, please refer to the later section [Customizations for New Hardware Example](#customizations-for-new-hardware-example)
 
 Note for TWatch (`TW3`): If when compile you see some "include font" error, it might be that the project's folder path is too long.
 In such a case, try move the project to somewhere closer to the "root" of your filesystem 
@@ -407,6 +390,112 @@ void triggerSetup() {
 }
 ...
 ```
+
+#  Customizations for New Hardware Example
+
+Take the above-mentioned `PICOW` as an example -- the Raspberry Pi PicoW wiring as mentioned in [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
+
+- A ST7789 2.8 inch 240x320 SPI TFT LCD module is used, with a FT6336U capacitive touch layer
+- It's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
+- A speaker is attached to it -- one end of the speaker is connected to `GND` and the other end is connected to `GP15`
+
+  |Raspberry Pi Pico|SPI TFT LCD |
+  |-----------------|------------|
+  | 3V3             | VCC        |
+  | GND             | GND        |
+  | GP21            | BL         |
+  | GP17            | CS         |
+  | GP16            | RS / DC    |
+  | GP18            | CLK / SCLK |
+  | GP19            | SDA / MOSI |
+  | GP20            | RST        |
+  | GP5             | TP_SCL     |
+  | GP4             | TP_SDA     |
+  | GP6             | TP_INT     |
+  | GP7             | TP_RST     |
+  | GP15            | SPEAKER    |
+  | GND             | SPEAKER    |
+
+`platformio.ini`
+```
+...
+[env:PICOW]  ; ensure long file name support ... git config --system core.longpaths true
+platform = https://github.com/maxgerhardt/platform-raspberrypi.git
+board = rpipicow
+framework = arduino
+board_build.core = earlephilhower
+board_build.filesystem = littlefs
+board_build.filesystem_size = 1m
+lib_deps =
+    https://github.com/adafruit/Adafruit-ST7735-Library.git#1.11.0
+    https://github.com/adafruit/Adafruit-GFX-Library#1.12.1
+    https://github.com/Bodmer/TJpg_Decoder.git#V1.1.0 
+    https://github.com/aselectroworks/Arduino-FT6336U
+    https://github.com/bblanchon/ArduinoJson#v7.4.1
+    https://github.com/bitbank2/PNGdec#1.1.0
+    https://github.com/trevorwslee/Arduino-DumbDisplay#v0.9.9-r51
+build_flags =
+    -D FOR_PICOW
+...    
+```
+* it appears that if using `earlephilhower` core in Windows, need to ensure long file name support ... ```git config --system core.longpaths true```
+* there are quite a few libraries needed:
+  - [`Adafruit-ST7735-Library`](https://github.com/adafruit/Adafruit-ST7735-Library) and
+    [`Adafruit-GFX-Library`](https://github.com/adafruit/Adafruit-GFX-Library) for the ST7789 2.8 inch 240x320 SPI TFT LCD screen
+  - [`TJpg_Decoder`](https://github.com/Bodmer/TJpg_Decoder) for decoding JPEG data (slides)
+  - [`Arduino-FT6336U`](https://github.com/aselectroworks/Arduino-FT6336U) for the FT6336U touch layer 
+  - [`ArduinoJson`](https://github.com/bblanchon/ArduinoJson) for parsing the JSON got from OpenWeather
+  - [`PNGdec`](https://github.com/bitbank2/PNGdec#1.1.0) for decoding the weather condition icon (PNG) retrieved from OpenWether
+  - [`Arduino-DumbDisplay`](https://github.com/trevorwslee/Arduino-DumbDisplay) for driving DumbDisplay Android app for the UI remotely rendered with your Android phone
+
+`sys_config.h`
+```
+...
+#elif defined(FOR_PICOW)
+  #define TFT_BL      21
+  #define TFT_CS      17
+  #define TFT_DC      16
+  #define TFT_SCLK    18
+  #define TFT_MOSI    19
+  #define TFT_RST     20
+  #define TFT_X_OFF   40
+  #define FT_TP_SCL   5 
+  #define FT_TP_SDA   4
+  #define FT_TP_INT   6
+  #define FT_TP_RST   7
+  #define BUZZER_PIN  15
+...  
+```
+* `TFT_xxx` are the pin mappings of the ST7789 TFT LCD screen
+* `TFT_X_OFF` is set to 40 since the screen is 320 wide and therefore need to offset the horizontal start by 40
+* `FT_TP_xxx` are the pin mappings of the FT6336U touch layer (normally part of the TFT LCD module)
+* `BUZZER_PIN` is the pin connected to one end of the speaker attached to the PicoW; the other end can connect to `GND` of the PicoW
+
+`screen_helpers.cpp`
+```
+...
+#elif defined(FOR_PICOW)
+  #include <Adafruit_ST7789.h>
+  Adafruit_ST7789 tft(TFT_CS, TFT_DC, TFT_RST);
+...
+void screenSetup() {
+  ...
+#elif defined(FOR_PICOW)  
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, 1);  // light it up
+  tft.init(240, 320, SPI_MODE0);
+  tft.invertDisplay(false);
+  tft.setRotation(1);
+  tft.setSPISpeed(40000000);
+  ...
+}
+...
+```
+* the first `defined(FOR_PICOW)`
+  - include the needed header file for the TFT LCD screen `<Adafruit_ST7789.h>`
+  - instantiate the global variable `tft` (as the TFT LCD screen object)
+* the second `defined(FOR_PICOW)`, which is inside the `void screenSetup()` block
+  - run the necessary code to setup the TFT LCD screen -- `tft` declared previously
 
 
 # Enjoy!

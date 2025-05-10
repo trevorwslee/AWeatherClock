@@ -60,10 +60,10 @@ const int32_t EEPROM_HEADER = 20250505;
   #define TFT_MOSI    19
   #define TFT_RST     20
   #define TFT_X_OFF   40
-  #define FT_TP_SCL       5 
-  #define FT_TP_SDA       4
-  #define FT_TP_INT       6
-  #define FT_TP_RST       7
+  #define FT_TP_SCL   5 
+  #define FT_TP_SDA   4
+  #define FT_TP_INT   6
+  #define FT_TP_RST   7
   #define BUZZER_PIN  15
 #elif defined(FOR_ESP_SPARKBOT)
   #define TFT_BL          46

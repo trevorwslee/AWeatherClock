@@ -5,18 +5,8 @@
 #include "screen_helpers.h"
 #include "png_helpers.h"
 
-// #if defined(FOR_PYCLOCK) || defined(FOR_PICOW_GP)
-//   #include <Adafruit_GFX.h>    // Core graphics library
-//   #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
-//   extern Adafruit_ST7789 tft;
-// #else
-//   #error board not suported
-// #endif
-
-
 
 PNG png;
-
 
 struct User {
   int xOff;
