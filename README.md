@@ -3,7 +3,7 @@ title: A Weather Clock (with Alarms) for ESP32 / Raspberry Pi Pico Implemented w
 description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi Pico implemented with the Arduino framework
 tags: 'esp32, raspberrypipico, clock, arduino'
 cover_image: ./imgs/awc.jpg
-published: false
+published: true
 id: 2473584
 ---
 
@@ -13,7 +13,7 @@ id: 2473584
 
 ![](imgs/awc.png)
 
-This little microcontroller project `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock),
+This [little microcontroller project](https://github.com/trevorwslee/AWeatherClock) `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock),
 and is implemented using the Arduino framework.
 
 VSCode with PlatformIO extension is the primarily development environment for the project, in the similar fashion as described by the post -- [A Way to Run Arduino Sketch With VSCode PlatformIO Directly](https://www.instructables.com/A-Way-to-Run-Arduino-Sketch-With-VSCode-PlatformIO/) 
