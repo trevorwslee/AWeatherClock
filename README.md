@@ -1,6 +1,6 @@
 ---
-title: A Weather Alarm Clock for ESP32 / Raspberry Pi Pico Implemented With Arduino Framework
-description: Arduino Weather Clock is a weather alarm clock for ESP32 / Raspberry Pi Pico implemented with Arduino framework
+title: A Weather Clock (with Alarms) for ESP32 / Raspberry Pi Pico Implemented with Arduino Framework
+description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi Pico implemented with the Arduino framework
 tags: 'esp32, raspberrypipico, digitalclock, weatherclock, alarmclock, arduino'
 cover_image: ./imgs/awc.png
 published: false
