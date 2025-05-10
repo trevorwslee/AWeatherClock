@@ -5,6 +5,7 @@ tags: 'esp32, raspberrypipico, clock, arduino'
 cover_image: ./imgs/awc.jpg
 published: true
 id: 2473584
+date: '2025-05-10T03:47:25Z'
 ---
 
 
