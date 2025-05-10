@@ -23,7 +23,6 @@ namespace {
   Alarm editingAlarm[ALARM_COUNT];
   int currEditingAlarmIdx;
   bool currEditingAlarmDirty;
-  //int needSaveEditedAlarms;
 
 
   SevenSegmentRowDDLayer* createTimeSelection() {
@@ -32,7 +31,6 @@ namespace {
     timeSelection->backgroundColor("lightgray");
     timeSelection->segmentColor("darkgreen");
     timeSelection->enableFeedback("fs:dbc>numkeys");
-    //timeSelection->showFormatted("00");
     return timeSelection;
   }
   LcdDDLayer* createUpDownButton(const char* label) {
@@ -73,18 +71,15 @@ namespace {
       bool on = (currEditingAlarm.weekDayMask & mask) != 0;
       weekDaySelection->selected(on, i);
     }
-    //syncEditingAlarmSelection(currEditingAlarmIdx, true, false);    
   }
 
   void syncCurrEditingAlarmHourSelection() {
     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
     hourSelection->showFormatted(String(100 + currEditingAlarm.hour).substring(1));
-    //minuteSelection->showFormatted(String(100 + currAlarm.minute).substring(1));
   }
 
   void syncCurrEditingAlarmMinuteSelection() {
     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
-    //hourSelection->showFormatted(String(100 + currAlarm.hour).substring(1));
     minuteSelection->showFormatted(String(100 + currEditingAlarm.minute).substring(1));
   }
 
@@ -153,7 +148,6 @@ namespace {
     if (currEditingAlarmDirty) {
       setAlarm(currEditingAlarmIdx, editingAlarm[currEditingAlarmIdx], "* DD set alarm -- ", true);
       currEditingAlarmDirty = false;
-      //needSaveEditedAlarms = true;
     }
   }
 
@@ -180,25 +174,10 @@ namespace {
 void dd_alarms_setup(bool recreateLayers) {
   if (recreateLayers) {
     editAlarmSelection = dumbdisplay.createSelectionLayer(5, 2, 1, ALARM_COUNT);
-    //alarmSelection->backgroundColor("blue");
-    //alarmSelection->highlightBorder(true, "purple");
-    //alarmSelection->pixelColor("cyan", true);
-    //alarmSelection->pixelColor("yellow", false);
     editAlarmSelection->enableFeedback();
     for (int i = 0; i < ALARM_COUNT; i++) {
       editingAlarm[i] = getAlarm(i);
       syncEditingAlarmSelection(i);
-      // Alarm& alarm = _alarm[i];
-      // String text1 = "#" + String(i + 1) + ":";
-      // String text2;
-      // if (alarm.enabled) {
-      //   text1.concat("🕰️");
-      //   text2 = String(100 + alarm.hour).substring(1) + ":" + String(100 +  alarm.minute).substring(1);
-      // } else {
-      //   text2 = "--:--";
-      // }
-      // alarmSelection->text(text1, 0, 0, i);
-      // alarmSelection->text(text2, 1, 0, i);
     }
 
     onRepeatedSelection = dumbdisplay.createSelectionLayer(8, 1, 2, 1);
@@ -266,7 +245,6 @@ void dd_alarms_setup(bool recreateLayers) {
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");
   selectEditingAlarm(0, true);
   currEditingAlarmDirty = false;
-  //needSaveEditedAlarms = false;
 }
 
 bool dd_alarms_loop() {
@@ -325,9 +303,6 @@ void dd_alarms_done() {
 
   Serial.println("* DD 'alarm tab' done");
   ensureCurrEditingAlarmSet();
-
-  // if (needSaveEditedAlarms)
-  //   onAlarmsChanged();
 }
 
 

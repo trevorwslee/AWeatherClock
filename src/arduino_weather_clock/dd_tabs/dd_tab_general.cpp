@@ -4,15 +4,6 @@
 #include "../global.h"
 
 
-// static int SlideShowIdleChoices[] { 
-//   0, 1, 2, 5, 10, 15, 20, 30, 60
-// };
-// #define SELECTION_HORI_SELECTION_COUNT 3
-// #define SELECTION_VERT_SELECTION_COUNT 3
-// #define SELECTION_HORI_IDX(i) (i % SELECTION_HORI_SELECTION_COUNT)
-// #define SELECTION_VERT_IDX(i) (i / SELECTION_HORI_SELECTION_COUNT)
-// static int SlideShowIdleChoicesCount = sizeof(SlideShowIdleChoices) / sizeof(SlideShowIdleChoices[0]);
-
 namespace {
 
   static int SlideShowIdleChoices[] { 

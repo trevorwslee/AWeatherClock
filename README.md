@@ -117,7 +117,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 * `🌤️` -- you click the `🌤️` button to trigger refresh of the current weather info
 * `12 Hour` / `24 Hour` -- you select whether the digital clock display should be in 12-hour or 24-hour format
 * `📡` -- you select whether to sync weather location with the GPS location of your phone
-* `Slide Show Idle` -- you select the idle time (in minutes) before starting slideshow
+* `Slide Show Idle` -- you select the idle time (in minutes) before starting slideshow; to disable idle slideshow, select `🚫`
 * `Slide Duration` -- you select the duration (in seconds) each slide should be kept shown, before switching to another one
 * `Update Weather` -- you select the gap (in minutes) between each auto update of the current weather info
 
@@ -261,6 +261,7 @@ const int32_t EEPROM_HEADER = 20250505;
 #  Customizations for New Hardware Highlights 
 
 There are several areas to consider for customizing `AWeatherClock` for new hardware:
+* `platformio.ini` for configuring PlatformIO for your MCU
 * TFT LCD screen; the out-of-the-box configured TFT LCD screens are
   - ST7789 with [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library.git)
   - LCD Screen of TWatch (`TW3`)
@@ -270,8 +271,35 @@ There are several areas to consider for customizing `AWeatherClock` for new hard
 * Buzzer or audio module; the out-of-the-box configured audio module is
   - ES8311 with [arduino audio driver](https://github.com/pschatzmann/arduino-audio-driver) and [arduino audio tools](https://github.com/pschatzmann/arduino-audio-tools)
 
-As mentioned previously, the pin mappings are mostly defined in `sys_config.h`
 
+For configuring PlatformIO for MCU. For example, for `PYCLOCK`, which is has an ESP32C3:
+```
+[env:PYCLOCK]
+platform = espressif32
+board = esp32-c3-devkitm-1
+framework = arduino
+board_build.partitions = no_ota.csv
+lib_deps =
+    https://github.com/adafruit/Adafruit-ST7735-Library.git
+    https://github.com/adafruit/Adafruit-GFX-Library
+    https://github.com/Bodmer/TJpg_Decoder.git
+    https://github.com/bblanchon/ArduinoJson
+    https://github.com/bitbank2/PNGdec#1.1.0
+    https://github.com/tzapu/WiFiManager
+    https://github.com/trevorwslee/Arduino-DumbDisplay
+build_flags =
+    -D ARDUINO_USB_MODE=1
+    -D ARDUINO_USB_CDC_ON_BOOT=1
+    -D FOR_PYCLOCK
+```  
+  - [`Adafruit-ST7735-Library`](https://github.com/adafruit/Adafruit-ST7735-Library) and
+    [`Adafruit-GFX-Library`](https://github.com/adafruit/Adafruit-GFX-Library) for the ST7789 2.8 inch 240x320 SPI TFT LCD screen
+  - [`TJpg_Decoder`](https://github.com/Bodmer/TJpg_Decoder) for decoding JPEG data (slides)
+  - [`ArduinoJson`](https://github.com/bblanchon/ArduinoJson) for parsing the JSON got from OpenWeather
+  - [`PNGdec`](https://github.com/bitbank2/PNGdec#1.1.0) for decoding the weather condition icon (PNG) retrieved from OpenWether
+  - [`Arduino-DumbDisplay`](https://github.com/trevorwslee/Arduino-DumbDisplay) for driving DumbDisplay Android app for the UI remotely rendered with your Android phone
+
+As for TFT LCD pin mappings (and others), they are mostly defined in `sys_config.h`.
 For example, for `PYCLOCK`, which has a button
 ```
   #define TFT_CS          5
@@ -282,7 +310,6 @@ For example, for `PYCLOCK`, which has a button
   #define TFT_X_OFF       0
   #define BUTTON_PIN      9
 ```
-Notes:
 * `TFT_xxx` -- the pin mappings for the TFT LCD screen
 * `TFT_X_OFF` -- the x offset to start the 240x240 area; note that the TFT screen can actually be wider than 240
 * `BUTTON_PIN` -- the pin number of the button; assume it is `INPUT_PULLUP`

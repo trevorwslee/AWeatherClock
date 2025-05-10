@@ -5,8 +5,6 @@
 #include "../global.h"
 #include "../slides_helpers.h"
 
-// #endif
-
 #define PICK_IMAGE_URL "pick://"
 #define TAKE_IMAGE_URL "take://"
 
@@ -20,8 +18,6 @@
 namespace {
 
   GraphicalDDLayer* imageCanvas;
-  // LcdDDLayer* firstButton;
-  // LcdDDLayer* lastButton;
   LcdDDLayer* leftButton;
   LcdDDLayer* rightButton;
   LcdDDLayer* saveButton;
@@ -70,29 +66,11 @@ namespace {
     int idx = random(urlCount);
     return urls[idx].c_str();
   }
-  
-
-  // int syncLeftRightButtons() {
-  //   int totalSlideCount = getSavedSlideCount();
-  //   bool disableLeft = (totalSlideCount == 0 || (currentSlideIdx <= -1));  // -1 is valid, meaning none
-  //   bool disableRight = (totalSlideCount == 0 || (currentSlideIdx >= (totalSlideCount - 1)));
-  //   leftButton->disabled(disableLeft);
-  //   rightButton->disabled(disableRight);
-  //   return totalSlideCount;
-  // }
-
-  // void syncForRetrievedJpegImage() {
-  //   bool disableSave = !retrievedJpegImage.isValid();
-  //   saveButton->disabled(disableSave);
-  //   deleteButton->disabled(!disableSave);
-  // }
 
   int syncButtonStates() {
     int totalSlideCount = getSavedSlideCount();
     bool disableLeft = (totalSlideCount == 0 || (currentSlideIdx <= -1));  // -1 is valid, meaning none
     bool disableRight = (totalSlideCount == 0 || (currentSlideIdx >= (totalSlideCount - 1)));
-    // firstButton->disabled(disableLeft);
-    // lastButton->disabled(disableRight);
     leftButton->disabled(disableLeft);
     rightButton->disabled(disableRight);
     bool disableSave = !retrievedJpegImage.isValid();
@@ -109,13 +87,9 @@ namespace {
 
   void selectSlide(int slideIdx) {
     currentSlideIdx = slideIdx;
-    int totalSlideCount = syncButtonStates/*syncLeftRightButtons*/();
+    int totalSlideCount = syncButtonStates();
     if (currentSlideIdx != -1) {
       imageCanvas->clear();
-      // imageCanvas->setCursor(5, 100);
-      // imageCanvas->setTextSize(18);
-      // imageCanvas->setTextColor("yellow");
-      // imageCanvas->write("loading image ...");
       imageCanvas->drawStr(5, 100, "loading image", "yellow", "", 18);
       DDJpegImage jpegImage;
       getSavedSlideImage(jpegImage, currentSlideIdx);
@@ -184,48 +158,16 @@ void dd_slides_setup(bool recreateLayers) {
   if (recreateLayers) {
     imageCanvas = dumbdisplay.createGraphicalLayer(TFT_WIDTH, TFT_HEIGHT);
 
-    // firstButton = createButton("⏪");
-    // lastButton = createButton("⏩");
     leftButton = createButton("⬅️");
     rightButton = createButton("➡️");
 
-    // leftButton = dumbdisplay.createLcdLayer(2, 1);
-    // leftButton->border(0.5, "darkblue");
-    // leftButton->writeCenteredLine("⬅️");
-    // leftButton->enableFeedback();
-
-    // rightButton = dumbdisplay.createLcdLayer(2, 1);
-    // rightButton->border(0.5, "darkblue");
-    // rightButton->writeCenteredLine("➡️");
-    // rightButton->enableFeedback();
-
     saveButton = createButton("💾");
     deleteButton = createButton("🗑️");
-
-    // saveButton = dumbdisplay.createLcdLayer(2, 1);
-    // saveButton->border(0.5, "darkblue");
-    // saveButton->writeCenteredLine("💾");
-    // saveButton->enableFeedback();
-
-    // deleteButton = dumbdisplay.createLcdLayer(2, 1);
-    // deleteButton->border(0.5, "darkblue");
-    // deleteButton->writeCenteredLine("🗑️");
-    // deleteButton->enableFeedback();
 
     fromInternetButton = createButton("🌍");
     fromUnsplashButton = createButton("💦");
     fromPhoneButton = createButton("📱");
     fromCameraButton = createButton("📷");
-
-    // fromInternetButton = dumbdisplay.createLcdLayer(2, 1);
-    // fromInternetButton->border(0.5, "darkblue");
-    // fromInternetButton->writeCenteredLine("🌍");
-    // fromInternetButton->enableFeedback();
-
-    // fromPhoneButton = dumbdisplay.createLcdLayer(2, 1);
-    // fromPhoneButton->border(0.5, "darkblue");
-    // fromPhoneButton->writeCenteredLine("📱");
-    // fromPhoneButton->enableFeedback();
 
 #ifndef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
     fromUnsplashButton->disabled(true);
@@ -267,8 +209,6 @@ void dd_slides_setup(bool recreateLayers) {
 }
 
 bool dd_slides_loop() {
-  //const DDFeedback *firstFeedback = firstButton->getFeedback();
-  //const DDFeedback *lastFeedback = lastButton->getFeedback();
   const DDFeedback* leftFeedback = leftButton->getFeedback();
   const DDFeedback* rightFeedback = rightButton->getFeedback();
   const DDFeedback* saveFeedback = saveButton->getFeedback();
@@ -305,19 +245,7 @@ bool dd_slides_loop() {
         selectSlide(currentSlideIdx + 1);
         invalidateRetrieved = true;
       }
-    }/* else if (firstFeedback != nullptr) {
-        if (savedSlideCount > 0 && currentSlideIdx >= 0) {
-          firstButton->flash();
-          selectSlide(-1);
-          invalidateRetrieved = true;
-        }
-    } else if (lastFeedback != nullptr) {
-        if (savedSlideCount > 0 &&  currentSlideIdx < (savedSlideCount - 1)) {
-          lastButton->flash();
-          selectSlide(savedSlideCount - 1);
-          invalidateRetrieved = true;
-        }
-    }*/ else if (fromInternetFeedback != nullptr) {
+    } else if (fromInternetFeedback != nullptr) {
       fromInternetButton->flash();
       setState(DOWNLOADING_FOR_IMAGE);
       invalidateRetrieved = true;
@@ -368,7 +296,7 @@ bool dd_slides_loop() {
     if (invalidateRetrieved) {
       if (retrievedJpegImage.isValid()) {
         retrievedJpegImage.release();
-        syncButtonStates/*syncForRetrievedJpegImage*/();
+        syncButtonStates();
       }
     }
   }
@@ -418,7 +346,6 @@ bool dd_slides_loop() {
         dumbdisplay.logToSerial("!!! got unslash image URL: '" + url + "'");
         if (url == "") {
           errorMessage = "failed to get image URL";
-          //dumbdisplay.logToSerial(String("!!! error: '") + errorMessage + "'");
         }
       }
 #endif
@@ -461,10 +388,6 @@ bool dd_slides_loop() {
       imageDownloadTunnel->reconnectTo(url);
     }
     imageCanvas->clear();
-    // imageCanvas->setCursor(5, 100);
-    // imageCanvas->setTextSize(18);
-    // imageCanvas->setTextColor("green");
-    // imageCanvas->write("downloading image ...");
     imageCanvas->drawStr(5, 100, actionHeader + " ...", "green", "", 18);
     if (true) {
       setState(WAIT_FOR_IMAGE_DOWNLOADED, stateParameters);
@@ -545,7 +468,7 @@ bool dd_slides_loop() {
       } else {
         dumbdisplay.logToSerial("XXX MCU received image is invalid");
       }
-      syncButtonStates/*syncForRetrievedJpegImage*/();
+      syncButtonStates();
       if (true) {
         setState(NOTHING);
       } else {
