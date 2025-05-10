@@ -355,6 +355,10 @@ Indeed, you will need other customizations to the code, like initialization of `
 ...
 ...
 void screenSetup() {
+#if defined(TFT_BL)
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, 1);  // light it up
+#endif
 #if defined(FOR_PYCLOCK)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.init(240, 240, SPI_MODE0);
@@ -366,15 +370,11 @@ void screenSetup() {
   tft.init(240, 280, SPI_MODE0);
   tft.setRotation(3);
 #elif defined(FOR_PICOW_GP)  
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
   SPI1.setSCK(TFT_SCLK);
   SPI1.setMOSI(TFT_MOSI);
   tft.init(240, 240, SPI_MODE0);
   tft.setRotation(3);
 #elif defined(FOR_PICOW)  
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
   tft.init(240, 320, SPI_MODE0);
   tft.setRotation(1);
   tft.setSPISpeed(40000000);
@@ -486,6 +486,7 @@ build_flags =
   #define TFT_MOSI    19
   #define TFT_RST     20
   #define TFT_X_OFF   40
+  #define TFT_NORMALLY_INVERTED
   #define FT_TP_SCL   5 
   #define FT_TP_SDA   4
   #define FT_TP_INT   6
@@ -495,6 +496,7 @@ build_flags =
 ```
 * `TFT_xxx` are the pin mappings of the ST7789 TFT LCD screen
 * `TFT_X_OFF` is set to 40 since the screen is 320 wide and therefore need to offset the horizontal start by 40
+* `TFT_NORMALLY_INVERTED` defines that the TFT LCD normally inverted
 * `FT_TP_xxx` are the pin mappings of the FT6336U touch layer (normally part of the TFT LCD module)
 * `BUZZER_PIN` is the pin connected to one end of the speaker attached to the PicoW; the other end can connect to `GND` of the PicoW
 

@@ -40,7 +40,12 @@
   #error board not suported
 #endif
 
+
 void screenSetup() {
+#if defined(TFT_BL)
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, 1);  // light it up
+#endif
 #if defined(FOR_PYCLOCK)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.init(240, 240, SPI_MODE0);
@@ -52,8 +57,8 @@ void screenSetup() {
   tft.init(240, 280, SPI_MODE0);
   tft.setRotation(3);
 #elif defined(FOR_PICOW_GP)  
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
+  // pinMode(TFT_BL, OUTPUT);
+  // digitalWrite(TFT_BL, 1);  // light it up
   if (true) {
     SPI1.setSCK(TFT_SCLK);
     SPI1.setMOSI(TFT_MOSI);
@@ -61,15 +66,15 @@ void screenSetup() {
   tft.init(240, 240, SPI_MODE0);
   tft.setRotation(3);
 #elif defined(FOR_PICOW)  
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
+  // pinMode(TFT_BL, OUTPUT);
+  // digitalWrite(TFT_BL, 1);  // light it up
   tft.init(240, 320, SPI_MODE0);
   tft.invertDisplay(false);
   tft.setRotation(1);
   tft.setSPISpeed(40000000);
 #elif defined(FOR_ESP_SPARKBOT)
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
+  // pinMode(TFT_BL, OUTPUT);
+  // digitalWrite(TFT_BL, 1);  // light it up
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.setSPISpeed(40000000);
   tft.init(240, 240, SPI_MODE0);
@@ -85,8 +90,8 @@ void screenSetup() {
   tft.init(240, 240, SPI_MODE0);
   tft.setRotation(2);
 #elif defined(FOR_ESP32_S3_BOX)
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
+  // pinMode(TFT_BL, OUTPUT);
+  // digitalWrite(TFT_BL, 1);  // light it up
   spi.begin(TFT_SCLK, -1/*TFT_MISO*/, TFT_MOSI, TFT_CS);
   tft.begin();
   tft.setRotation(2);
@@ -160,8 +165,11 @@ void invertDisplay(void* displayHandle, bool invert) {
 #if defined(FOR_TWATCH)  
   TFT_eSPI& tft = *((TFT_eSPI *)displayHandle);
 #endif
-#if !defined(FOR_ESP32_S3_BOX) && !defined(FOR_PICOW)
-    invert = !invert;  // normally inverted
+// #if !defined(FOR_ESP32_S3_BOX) && !defined(FOR_PICOW)
+//     invert = !invert;  // normally inverted
+// #endif
+#if !defined(TFT_NORMALLY_INVERTED)
+  invert = !invert;  // normally inverted
 #endif
   tft.invertDisplay(invert); 
 }
