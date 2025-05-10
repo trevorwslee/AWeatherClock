@@ -407,9 +407,15 @@ void triggerSetup() {
 ...
 ```
 
-TODO:
-* show 
-  - connected
-  - batter%
-  - wifi strength
-  - set NTP interval
+
+# Enjoy!
+
+Have fun with it!
+
+
+> Peace be with you!
+> May God bless you!
+> Jesus loves you!
+> Amazing Grace!
+
+
