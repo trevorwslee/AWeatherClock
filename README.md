@@ -4,6 +4,7 @@ description: Arduino Weather Clock is a weather digital clock (with alarms) for 
 tags: 'esp32, raspberrypipico, clock, arduino'
 cover_image: ./imgs/awc.jpg
 published: false
+id: 2473584
 ---
 
 
