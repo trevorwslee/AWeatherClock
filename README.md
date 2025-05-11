@@ -32,7 +32,7 @@ Nevertheless, the sketch of `AWeatherClock` should be adaptable to other hardwar
 The functions of `AWeatherClock` are:
 * Display of a digital clock synchronized with NTP
 * Display of the current weather info gathered from [OpenWeather](https://home.openweathermap.org/) with ***version 2.5*** APIs [for [free account](https://openweathermap.org/full-price#onecall)]
-* Alarms
+* Alarms that can be repeated daily
 * Idle slideshow of photos (JPEG images) uploaded to the MCU, much like the slideshow function as described by  [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
 
 `AWeatherClock` requires hardware with the following capabilities:
@@ -44,7 +44,7 @@ The functions of `AWeatherClock` are:
 * Optionally -- buzzer, speaker or audio module (like ES8311 for ESP32) -- for sounding of alarms.
 
 Since `AWeatherClock` needs to gather current weather info from [OpenWeather](https://home.openweathermap.org/users/sign_up),
-please, sign up for an `APP_ID` of their ***version 2.5*** APIs. 
+please, ***sign up*** for an `APP_ID` of their ***version 2.5*** APIs. 
 You will need this `APP_ID` in order to setup for `AWeatherClock` -- please refer to the section [Basic Hardcoded Configurations](#basic-hardcoded-configurations----configh)
 
 Also, [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay)
@@ -103,6 +103,15 @@ With `BUTTON` or `TOUCH SCREEN`, you can trigger `AWeatherClock` to show the IP 
 |Be the "trigger" mechanism `BUTTON` or `TOUCH SCREEN`, you "double click" to trigger showing of IP|<div style='width:250px;height:250px'>![](imgs/ast_watch_ip_00.jpg)</div>|
 
 
+|  |  |
+|--|--|
+|You will need this IP to make connection between `AWeatherClock` and your Android phone's Arduino DumbDisplay app for the remote UI, as will be described in more details next|![](imgs/dd-wifi-connect.gif)|
+
+|  |  |  |
+|--|--|--|
+|BTW. You might see that DumbDisplay Android app requires "LOCATION" permission to make use of your phone's GPS service. You can grant the permission with the `Settings` menu option of DumbDisplay Android app|<div style='width:200px;height:450px'>![](imgs/dd-permission-00.jpg)</div>|<div style='width:200px;height:450px'>![](imgs/dd-permission-01.jpg)</div>|
+
+
 # Settings UI 
 
 As mentioned previously, most of the `AWeatherClock` settings can be modified with the UI remotely rendered on your Android phone with DumbDisplay Android app
@@ -135,7 +144,8 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
     `Su` / `Mo` / `Tu` / `We` / `Th` / `Fr` / `Sa` below the `🔄` button
   - The time of the alarm is clearly shown further down below. You can press the `🔼` / `🔽` to have the alarm hour / minute changed. Alternatively, you can double-press 
     on the hour / minute to have a pop-up dialog for you to enter the hour / minute of the alarm.
-    Note that if you enter a value bigger than 99, like 1230, it will be interpreted as the time 12:30   
+    Note that if you enter a value bigger than `99`, like 1230, it will be interpreted as the time `12:30`;
+    if you want to enter the time, say, `00:01`, enter `2401`    
 
 
 # Settings UI -- Slides
@@ -486,7 +496,7 @@ build_flags =
   #define TFT_MOSI    19
   #define TFT_RST     20
   #define TFT_X_OFF   40
-  #define TFT_NORMALLY_INVERTED
+  #define TFT_UN_INVERTED
   #define FT_TP_SCL   5 
   #define FT_TP_SDA   4
   #define FT_TP_INT   6
@@ -496,7 +506,7 @@ build_flags =
 ```
 * `TFT_xxx` are the pin mappings of the ST7789 TFT LCD screen
 * `TFT_X_OFF` is set to 40 since the screen is 320 wide and therefore need to offset the horizontal start by 40
-* `TFT_NORMALLY_INVERTED` defines that the TFT LCD normally inverted
+* `TFT_UN_INVERTED` defines that the TFT LCD normally un-inverted; this macro tells the state of the TFT LCD when flashing in for due alarm
 * `FT_TP_xxx` are the pin mappings of the FT6336U touch layer (normally part of the TFT LCD module)
 * `BUZZER_PIN` is the pin connected to one end of the speaker attached to the PicoW; the other end can connect to `GND` of the PicoW
 

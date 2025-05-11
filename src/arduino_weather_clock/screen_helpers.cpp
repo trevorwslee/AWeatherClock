@@ -168,8 +168,9 @@ void invertDisplay(void* displayHandle, bool invert) {
 // #if !defined(FOR_ESP32_S3_BOX) && !defined(FOR_PICOW)
 //     invert = !invert;  // normally inverted
 // #endif
-#if !defined(TFT_NORMALLY_INVERTED)
-  invert = !invert;  // normally inverted
+#if !defined(TFT_UN_INVERTED)
+  // NOT normally un-inverted (i.e. normally inverted) ==> reverse invert
+  invert = !invert;
 #endif
   tft.invertDisplay(invert); 
 }

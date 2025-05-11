@@ -60,7 +60,7 @@ const int32_t EEPROM_HEADER = 20250505;
   #define TFT_MOSI    19
   #define TFT_RST     20
   #define TFT_X_OFF   40
-  #define TFT_NORMALLY_INVERTED
+  #define TFT_UN_INVERTED
   #define FT_TP_SCL   5 
   #define FT_TP_SDA   4
   #define FT_TP_INT   6
@@ -109,7 +109,7 @@ const int32_t EEPROM_HEADER = 20250505;
   #define TFT_MOSI    6    // SDA
   #define TFT_RST     48
   #define TFT_X_OFF   40
-  #define TFT_NORMALLY_INVERTED
+  #define TFT_UN_INVERTED
   #define ES8311_PA       46 
   #define ES8311_I2C_SCL  18
   #define ES8311_I2C_SDA  8
