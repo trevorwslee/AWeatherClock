@@ -16,6 +16,9 @@
 #define CHECK_ALARM_ALLOWANCE_SECONDS -15
 
 
+#if defined(ESP32)
+  #define USE_TASK_FOR_ALARM_SOUND
+#endif
 
 struct _Beep {
   int freq;
@@ -38,6 +41,13 @@ long _alarmDueMillis = -1;
 CurrTime _lastAlarmDueTime;
 long _lastAlarmBeepMillis;
 bool _lastDisplayInverted = false;
+
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+volatile  bool _alarmSoundingWithTask = false;
+#endif
+
+
 
 
 Alarm getAlarm(int idx) {
@@ -66,6 +76,9 @@ void setAlarm(int idx, Alarm& alarm, const char* printPrefix, bool saveAsWell) {
 
 
 void ackAlarmDue() {
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  _alarmSoundingWithTask = false;
+#endif
   _alarmDueMillis = -1;
   _checkedNextAlarmIdxDay = -1;
   if (_lastDisplayInverted) {
@@ -73,6 +86,7 @@ void ackAlarmDue() {
     invertDisplay(displayHandle, false);
     _lastDisplayInverted = false;
   }
+ 
 }
 
 void alarmsSetup() {
@@ -225,6 +239,29 @@ void _forceSetDebugAlarms() {
   //eeprompt_saveAlarms();
 }
 
+long _alarmBeep() {
+  long usedMillis = 0;
+  for (int i = 0; i < _NumBeeps; i++) {
+    _Beep& beep = _Beeps[i];
+    playTone(beep.freq, beep.durationMillis);
+    usedMillis += beep.durationMillis;
+  }
+  return usedMillis;
+}
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+void _soundAlarmTaskFunc(void* param) {
+  while (_alarmSoundingWithTask) {
+    long usedMillis = _alarmBeep();
+    long delayMillis = 1000 - usedMillis;
+    if (delayMillis > 0) {
+      vTaskDelay(delayMillis / portTICK_PERIOD_MS);
+    }
+  }
+  vTaskDelete(NULL);
+}
+#endif
+
 bool alarmsLoop() {
   if (millis() < BLACK_OUT_MILLIS) {
     return false;
@@ -242,10 +279,27 @@ bool alarmsLoop() {
       void* displayHandle = getDisplayHandle();
       _lastDisplayInverted = !_lastDisplayInverted;
       invertDisplay(displayHandle, _lastDisplayInverted);
-      for (int i = 0; i < _NumBeeps; i++) {
-        _Beep& beep = _Beeps[i];
-        playTone(beep.freq, beep.durationMillis);
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+      if (!_alarmSoundingWithTask) {
+        Serial.println("!!! create sound alarm task !!!");
+        _alarmSoundingWithTask = true;
+        xTaskCreate(
+            _soundAlarmTaskFunc,         
+            "SoundAlarmTask",    
+            10240,                
+            NULL,                 
+            configMAX_PRIORITIES - 1,
+            NULL                  
+        );
       }
+#else
+      _alarmBeep();
+      // for (int i = 0; i < _NumBeeps; i++) {
+      //   _Beep& beep = _Beeps[i];
+      //   playTone(beep.freq, beep.durationMillis);
+      // }
+#endif      
     }
 #if defined(AUTO_ACK_ALARM_MINUTES) 
     long diffMillis = millis() - _alarmDueMillis;
