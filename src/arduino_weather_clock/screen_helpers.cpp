@@ -22,10 +22,20 @@
   #include <Adafruit_GFX.h>    // Core graphics library
   #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
   #include <SPI.h>             // Arduino SPI library
-  SPIClass spi = SPIClass(HSPI);
+  SPIClass spi = SPIClass(FSPI);
+  Adafruit_ST7789 tft(&spi, TFT_CS, TFT_DC, TFT_RST);
+#elif defined(FOR_MUMA)
+  #include <Adafruit_GFX.h>    // Core graphics library
+  #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
+  #include <SPI.h>             // Arduino SPI library
+  SPIClass spi = SPIClass(FSPI);
   Adafruit_ST7789 tft(&spi, TFT_CS, TFT_DC, TFT_RST);
 #elif defined(FOR_TWATCH)
   #include <LilyGoWatch.h>
+#elif defined(FOR_ESP32_LCD)  
+  #include "Adafruit_ILI9341.h"
+  SPIClass spi(HSPI);
+  Adafruit_ILI9341 tft(&spi, TFT_DC, TFT_CS);
 #elif defined(FOR_ESP32_S3_EYE)
   #include <Adafruit_GFX.h>    // Core graphics library
   #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
@@ -44,8 +54,13 @@
 void screenSetup() {
 #if defined(TFT_BL)
   pinMode(TFT_BL, OUTPUT);
+  #if defined(TFT_BL_LOW)
+  digitalWrite(TFT_BL, 0);  // light it up (LOW)
+  #else
   digitalWrite(TFT_BL, 1);  // light it up
+  #endif
 #endif
+
 #if defined(FOR_PYCLOCK)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.init(240, 240, SPI_MODE0);
@@ -79,6 +94,15 @@ void screenSetup() {
   tft.setSPISpeed(40000000);
   tft.init(240, 240, SPI_MODE0);
   tft.setRotation(2);
+#elif defined(FOR_MUMA)
+  spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
+  tft.setSPISpeed(40000000);
+  tft.init(240, 240, SPI_MODE0);
+  tft.setRotation(2);
+#elif defined(FOR_ESP32_LCD)  
+  spi.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
+  tft.begin();
+  tft.setRotation(1);
 #elif defined(FOR_TWATCH)  
   TTGOClass *ttgo = TTGOClass::getWatch();
   ttgo->begin();

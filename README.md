@@ -1,6 +1,6 @@
 ---
 title: A Weather Clock (with Alarms) for ESP32 / Raspberry Pi Pico Implemented with Arduino Framework
-description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi Pico implemented with the Arduino framework
+description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi Pico W implemented with the Arduino framework
 tags: 'esp32, raspberrypipico, clock, arduino'
 cover_image: ./imgs/awc.jpg
 published: true
@@ -10,7 +10,6 @@ date: '2025-05-10T03:47:25Z'
 
 
 # Arduino Weather Clock -- `AWeatherClock` -- v1.0
-
 
 ![](imgs/awc.png)
 
@@ -39,7 +38,7 @@ The functions of `AWeatherClock` are:
 * ESP32 line of MCU that supports WiFi, or Raspberry Pi PicoW
 * 240x240 (or bigger) colored TFT LCD screen
 * Able to provide with simple "trigger" input, like with
-  - `BUTTON`
+  - `BUTTON` -- note that the "boot" button for ESP32 can be used as `BUTTON` here
   - `TOUCH SCREEN`
 * Optionally -- buzzer, speaker or audio module (like ES8311 for ESP32) -- for sounding of alarms.
 
@@ -64,7 +63,7 @@ with the help of DumbDisplay Android app
   - based on GPS location of your phone queried via DumbDisplay Android app  
 * NTP timezone
   - the initial timezone of your MCU is hardcoded to the macro `INIT_TIMEZONE` defined in `config.h`
-  - after weather info gathering, timezone of your MCU is set to the timezone returned
+  - after weather info gathering, timezone of your MCU is set to the timezone returned with the weather info
 * When connected to DumbDisplay Android app, `AWeatherClock` is considered not idle, and hence slideshow will not start      
 
 Notice that the remote UI on your Android phone is driven by the sketch -- i.e. the control flow of the UI is programmed in the sketch -- hence, other than the DumbDisplay Android app, there is no specific mobile app for `AWeatherClock`. 
@@ -72,27 +71,46 @@ Notice that the remote UI on your Android phone is driven by the sketch -- i.e. 
 You may want to refer to [Blink Test With Virtual Display, DumbDisplay](https://www.instructables.com/Blink-Test-With-Virtual-Display-DumbDisplay/)
 for a bit more details about  [DumbDisplay Arduino library](https://github.com/trevorwslee/Arduino-DumbDisplay) and [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay).
 
+
 # Out-of-the-Box Supported Hardware
 
 The sketch `arduino_weather_clock.ino` of this project is tailored for various compatible hardware that I can get hold of:
 * PlatformIO env `PYCLOCK` -- ESP32 C3 [pyClock](https://github.com/01studio-lab/pyClock)
   - it's button on the back is configured as a `BUTTON` for "trigger" input
 * PlatformIO env `AST_WATCH` -- ESP32 C3 [Astronaut-Clock-Watch (touch)](https://spotpear.cn/wiki/ESP32-C3-Ornament-Trinket-LVGL-Astronaut-Clock-Watch-MINI-TV-1.69inch-Round-LCD-TouchScreen-ST7789-240x280.html)
-  - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
+  - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input
+  - it has a buzzer, which is used to generate alarm sound 
 * PlatformIO env `TW3` -- ESP32 [LILYGO_WATCH_2020_V3](https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library)
   - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
 * PlatformIO env `ESP_SPARKBOT` -- ESP32 S3 [ESP-SparkBot](https://oshwlab.com/hawaii0707/esp-sparkbot)
   - it's right side is touchable, which is configured as a `BUTTON` for "trigger" input
+  - it also has the `ES8311` audio codec module, which is used to generate alarm sound
+* PlatformIO env `MUMA` -- ESP32 S3 [Little MuMa (non-touch)](https://spotpear.cn/shop/ESP32-S3-AI-1.54-inch-LCD-Display-TouchScreen-N16R8-muma-DeepSeek.html)
+  - it's "boot" button on the back right side is configured as a `BUTTON` for "trigger" input
+  - it also has the `ES8311` audio codec module, which is used to generate alarm sound
 * Platformio env `PICOW_GP` -- a Raspberry Pi PicoW attached to a [gamepad-like LCD](https://spotpear.cn/wiki/Raspberry-Pi-Pico-RP2040-1.54inch-LCD-display-Screen-Game-ST7789.html)
   - the gamepad's "start" button is configured as a `BUTTON` for "trigger" input
 * PlatformIO env `PICOW` -- the Raspberry Pi PicoW wiring as mentioned in [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
-  -  a ST7789 2.8 inch 240x320 SPI TFT LCD module is used, with a FT6336U capacitive touch layer
+  - a ST7789 2.8 inch 240x320 SPI TFT LCD module is used, with a FT6336U capacitive touch layer
   - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
-  - a speaker is attached to it
+  - a speaker is attached to it; the speaker is used to generate alarm sound 
   - for more details, please refer to the later section [Customizations for New Hardware Example](#customizations-for-new-hardware-example)
+  
 
-Note for TWatch (`TW3`): If when compile you see some "include font" error, it might be that the project's folder path is too long.
-In such a case, try move the project to somewhere closer to the "root" of your filesystem 
+Notes:
+* How many slides can be stored in the MCU? Say,
+  - for `PYCLOCK` which is an ESP32-C3 with 4M of flash memory, I can store 25 to 30 photos to the flash of MCU; note that for `PYCLOCK`, it is configured to use `no_ota.csv` partitions in `platformio` like
+    ```
+    board_build.partitions = no_ota.csv
+    ``` 
+  - for Raspberry Pi Pico, I can also store 25 to 30 photos to the flash of the MCU as well; note that for Raspberry Pi Pico, `littlefs` is configured in `platformio.ini` like
+    ```
+    board_build.filesystem = littlefs
+    board_build.filesystem_size = 1m
+    ```
+* For TWatch (`TW3`): If when compile you see some "include font" error, it might be that the project's folder path is too long.
+  In such a case, try move the project to somewhere closer to the "root" of your filesystem 
+
 
 # Showing of IP
 
@@ -105,11 +123,11 @@ With `BUTTON` or `TOUCH SCREEN`, you can trigger `AWeatherClock` to show the IP 
 
 |  |  |
 |--|--|
-|You will need this IP to make connection between `AWeatherClock` and your Android phone's Arduino DumbDisplay app for the remote UI, as will be described in more details next|![](imgs/dd-wifi-connect.gif)|
+|You will need this IP to make connection between `AWeatherClock` and your Android phone's Arduino DumbDisplay app for the remote UI, as will be described in more details next|<div style='width:500px;height:800px'>![](imgs/dd-wifi-connect.gif)</div>|
 
 |  |  |  |
 |--|--|--|
-|BTW. You might see that DumbDisplay Android app requires "LOCATION" permission to make use of your phone's GPS service. You can grant the permission with the `Settings` menu option of DumbDisplay Android app|<div style='width:200px;height:450px'>![](imgs/dd-permission-00.jpg)</div>|<div style='width:200px;height:450px'>![](imgs/dd-permission-01.jpg)</div>|
+|BTW. You might see that DumbDisplay Android app requires "LOCATION" permission to make use of your phone's GPS service. You can grant the permission with the `Settings` menu option of DumbDisplay Android app|<div style='width:280px;height:600px'>![](imgs/dd-permission-00.jpg)</div>|<div style='width:280px;height:600px'>![](imgs/dd-permission-01.jpg)</div>|
 
 
 # Settings UI 
@@ -121,7 +139,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 
 |  |  |
 |--|--|
-|With the `General` tab, you can modify the general settings / options|<div style='width:400px;height:600px'>![](imgs/tab_general_00.jpg)</div>|
+|With the `General` tab, you can modify the general settings / options|<div style='width:500px;height:800px'>![](imgs/tab_general_00.jpg)</div>|
 
 * `🌤️` -- you click the `🌤️` button to trigger refresh of the current weather info
 * `12 Hour` / `24 Hour` -- you select whether the digital clock display should be in 12-hour or 24-hour format
@@ -135,7 +153,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 
 |  |  |
 |--|--|
-|With the `Alarms` tab, you can set up the alarms of `AWeatherClock`|<div style='width:400px;height:600px'>![](imgs/tab_alarm_00.jpg)</div>|
+|With the `Alarms` tab, you can set up the alarms of `AWeatherClock`|<div style='width:500px;height:800px'>![](imgs/tab_alarm_00.jpg)</div>|
 
 * The `🕰️` icon next to an alarm indicates that the alarm is ON; below that icon, the time of the alarm is shown, like `00:00`
 * You can select any one of the alarms to edit. The details of the alarm being edited are shown on the right-side
@@ -229,7 +247,7 @@ Notes:
 #define DEF_SYNC_WEATHER_LOCATION_WITH_GPS  true /* got location from GPS when connected to DD */
 #define DEF_SLIDE_SHOW_IDLE_DELAY_MINS      2    /* <= 0 means slide show not enabled */
 #define DEF_SLIDE_DURATION_SECS             5
-#define DEF_UPDATE_WEATHER_INT_MINS         30
+#define DEF_UPDATE_WEATHER_INTERVAL_MINS    30
 
 #define NUM_ALARMS                          5
 #define AUTO_ACK_ALARM_MINUTES              10
@@ -244,7 +262,7 @@ Notes:
   (rather than based on `DEF_OPEN_WEATHER_API_LOCATION`)
 * `DEF_SLIDE_SHOW_IDLE_DELAY_MINS` -- The default setting for how many idle minutes to start slideshow  
 * `DEF_SLIDE_DURATION_SECS` -- The default setting for how many seconds for each slideshow phone should stay displayed before switching to another one
-* `DEF_UPDATE_WEATHER_INT_MINS` -- The default setting for the interval (minutes) between each update of current weather info
+* `DEF_UPDATE_WEATHER_INTERVAL_MINS` -- The default setting for the interval (minutes) between each update of current weather info
 * `NUM_ALARMS` -- The fixed number of alarms `AWeatherClock` can set
 * `AUTO_ACK_ALARM_MINUTES` -- The number of minutes before due alarm is automatically acknowledged (stopped)
 
@@ -272,13 +290,14 @@ const int32_t EEPROM_HEADER = 20250505;
 
 There are several areas to consider for customizing `AWeatherClock` for new hardware:
 * `platformio.ini` for configuring PlatformIO for your MCU
-* TFT LCD screen; the out-of-the-box configured TFT LCD screens are
+* TFT LCD screen. The out-of-the-box configured TFT LCD screens are
   - ST7789 with [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library.git)
+  - ILI9341 with [Adafruit_ILI9341](https://github.com/adafruit/Adafruit_ILI9341)
   - LCD Screen of TWatch (`TW3`)
-* Button or touch screen; the out-of-the-box configured touch screens are
+* Button or touch screen. For touch screen, the out-of-the-box configured touch screens are
   - FT6336U with [Arduino FT6336U](https://github.com/aselectroworks/Arduino-FT6336U)
   - CST816T with [cst816t](https://github.com/koendv/cst816t)
-* Buzzer or audio module; the out-of-the-box configured audio module is
+* Buzzer or audio module. For audio module, the out-of-the-box configured audio module is
   - ES8311 with [arduino audio driver](https://github.com/pschatzmann/arduino-audio-driver) and [arduino audio tools](https://github.com/pschatzmann/arduino-audio-tools)
 
 
@@ -312,6 +331,8 @@ build_flags =
 As for TFT LCD pin mappings (and others), they are mostly defined in `sys_config.h`.
 For example, for `PYCLOCK`, which has a button
 ```
+...
+#if defined(FOR_PYCLOCK)
   #define TFT_CS          5
   #define TFT_DC          4
   #define TFT_SCLK        6
@@ -319,6 +340,7 @@ For example, for `PYCLOCK`, which has a button
   #define TFT_RST         8
   #define TFT_X_OFF       0
   #define BUTTON_PIN      9
+...
 ```
 * `TFT_xxx` -- the pin mappings for the TFT LCD screen
 * `TFT_X_OFF` -- the x offset to start the 240x240 area; note that the TFT screen can actually be wider than 240
@@ -326,6 +348,8 @@ For example, for `PYCLOCK`, which has a button
 
 In case of CST816T touch screen, like that for `AST_WATCH`
 ```
+...
+#elif defined(FOR_AST_WATCH)
   #define TFT_CS          3
   #define TFT_DC          2
   #define TFT_SCLK        5
@@ -338,6 +362,7 @@ In case of CST816T touch screen, like that for `AST_WATCH`
   #define CST_TP_RST      10
   #define CST_TP_INT      9
   #define BUZZER_PIN      1
+...
 ```
 * `TFT_xxx` -- the pin mappings for the TFT LCD screen
 * `TFT_X_OFF` -- x offset is to 20, since the TFT LCD screen is 280x240
@@ -367,8 +392,13 @@ Indeed, you will need other customizations to the code, like initialization of `
 void screenSetup() {
 #if defined(TFT_BL)
   pinMode(TFT_BL, OUTPUT);
+  #if defined(TFT_BL_LOW)
+  digitalWrite(TFT_BL, 0);  // light it up (LOW)
+  #else
   digitalWrite(TFT_BL, 1);  // light it up
+  #endif
 #endif
+
 #if defined(FOR_PYCLOCK)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.init(240, 240, SPI_MODE0);
@@ -427,6 +457,22 @@ void triggerSetup() {
 }
 ...
 ```
+
+As hinted above with `AST_WATCH`, to configure a buzzer / speaker is as easy as defining the pin assignment `BUZZER_PIN`.
+However, there are much more pins for the ES8311 audio module, as in `ESP_SPARKBOT`
+```
+  #define ES8311_PA             46 
+  #define ES8311_I2C_SCL        5
+  #define ES8311_I2C_SDA        4
+  #define ES8311_I2S_PORT       35
+  #define ES8311_I2S_MCLK       45
+  #define ES8311_I2S_BCK        39  
+  #define ES8311_I2S_WS         41
+  #define ES8311_I2S_DOUT       42
+  #define ES8311_I2S_DIN        40
+  #define ES8311_VOLUME         60
+```
+* `ES8311_VOLUME` sets the volume of the audio module; if you would like higher alarm volume, set `ES8311_VOLUME` to higher value like `80` 
 
 #  Customizations for New Hardware Example
 
@@ -506,7 +552,7 @@ build_flags =
 ```
 * `TFT_xxx` are the pin mappings of the ST7789 TFT LCD screen
 * `TFT_X_OFF` is set to 40 since the screen is 320 wide and therefore need to offset the horizontal start by 40
-* `TFT_UN_INVERTED` defines that the TFT LCD normally un-inverted; this macro tells the state of the TFT LCD when flashing in for due alarm
+* `TFT_UN_INVERTED` defines that the TFT LCD normally un-inverted; this macro tells the normal state of the TFT LCD when flashing the TFT LCD for due alarm
 * `FT_TP_xxx` are the pin mappings of the FT6336U touch layer (normally part of the TFT LCD module)
 * `BUZZER_PIN` is the pin connected to one end of the speaker attached to the PicoW; the other end can connect to `GND` of the PicoW
 
@@ -518,10 +564,12 @@ build_flags =
   Adafruit_ST7789 tft(TFT_CS, TFT_DC, TFT_RST);
 ...
 void screenSetup() {
-  ...
-#elif defined(FOR_PICOW)  
+#if defined(TFT_BL)
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, 1);  // light it up
+#endif
+  ...
+#elif defined(FOR_PICOW)  
   tft.init(240, 320, SPI_MODE0);
   tft.invertDisplay(false);
   tft.setRotation(1);
@@ -537,10 +585,10 @@ void screenSetup() {
   - run the necessary code to setup the TFT LCD screen -- `tft` declared previously
 
 
-# Enjoy!
-
 Have fun with it!
 
+
+# Enjoy!
 
 > Peace be with you!
 > May God bless you!

@@ -6,11 +6,15 @@
 #define CLICK_THRESHOLD_MILLIS 200
 #define DOUBLE_CLICK_PRESS_AGAIN_MILLIS 500
 
+
 #if defined(CST_TP_BUS_NUM)
   #include <Wire.h>
   #include "cst816t.h"
   TwoWire tpWire(CST_TP_BUS_NUM);
   cst816t touchpad(tpWire, CST_TP_RST, CST_TP_INT);
+#elif defined(CST816S_SDA)
+  #include <CST816S.h>
+  CST816S touch(CST816S_SDA, CST816S_SCL, CST816S_RST, CST816S_INT);	// sda, scl, rst, irq
 #elif defined(FT_TP_SCL)
   #include <Wire.h>
   #include "FT6336U.h"
@@ -37,7 +41,7 @@ volatile unsigned long _canLastTriggerMillis = 0;
 //   #define TOUCH_THRESHOLD      90
 //   #define MIN_TOUCH_VALUE      33000
 // #endif
-#if defined(BUTTON_PIN) || defined(TOUCH_PIN) || defined(FOR_TWATCH) || defined(FT_TP_SCL) || defined(GT911_TP_SCL)
+#if !defined(TW3)
 void  _triggered() {
   #if defined(BUTTON_PIN)
     int buttonState = digitalRead(BUTTON_PIN);
@@ -50,7 +54,7 @@ void  _triggered() {
  
   #elif defined(TOUCH_PIN)
     touch_value_t val = touchRead(TOUCH_PIN);
-    if (false) {  // TODO: for sparkboot check touch
+    if (false) {  // TODO: for sparkbot check touch
       Serial.printf("????????????????????????????????????????? touched ... val=%d\n", val);
     }
     if (val < MIN_TOUCH_VALUE) {
@@ -134,12 +138,6 @@ void setTriggeredState(TriggeredState triggeredState) {
 
 
 
-// #if defined(FT_TP_SCL)
-// void _tpIntHandle(void) {
-//   checkTouchpadStatus = true;
-// }
-// #endif
-
 void triggerSetup() {
 #ifdef BUTTON_PIN
   pinMode(BUTTON_PIN, INPUT_PULLUP);  // assume INPUT_PULLUP
@@ -154,6 +152,31 @@ void triggerSetup() {
 #elif defined(CST_TP_BUS_NUM)
   tpWire.begin(CST_TP_SDA, CST_TP_SCL);
   touchpad.begin(mode_motion);
+  if (true) {
+    uint8_t chip_id = touchpad.chip_id;
+    Serial.print("***** Touch Chip ID: ");
+    Serial.println(chip_id);
+    String version = touchpad.version();
+    Serial.print("***** Touch Firmware Version: ");
+    Serial.println(version);
+  }
+#elif defined(CST816S_SDA)
+  touch.begin();
+  //touch.disable_auto_sleep();
+  if (true) {
+    // Print version information
+    Serial.print("Touch Firmware Version: ");
+    Serial.print(touch.data.version);
+    Serial.print("\t");
+    Serial.print(touch.data.versionInfo[0]);
+    Serial.print("-");
+    Serial.print(touch.data.versionInfo[1]);
+    Serial.print("-");
+    Serial.println(touch.data.versionInfo[2]);
+  // // Disable auto sleep to keep the device active (useful during debugging or testing)
+  // touch.disable_auto_sleep();
+  // Serial.println("Auto sleep disabled");    
+  }
 #elif defined(FT_TP_SCL)
   //pinMode(FT_TP_INT, INPUT_PULLUP);
   Wire.setSDA(FT_TP_SDA);  // FT6336U will use Wire
@@ -161,7 +184,7 @@ void triggerSetup() {
   touchpad.begin();
   attachInterrupt(digitalPinToInterrupt(FT_TP_INT), _triggered, CHANGE);
 #elif defined(GT911_TP_SCL)  
-  touchpad.begin(GT911_ADDR2);  // sometimes, need to use the backup GT911_ADDR2
+  touchpad.begin(GT911_ADDR1);  // sometimes, need to use the backup GT911_ADDR2
   touchpad.setRotation(ROTATION_NORMAL);
 #endif
 }
@@ -212,6 +235,21 @@ void triggerLoop() {
 //     // }
 //     checkTouchpadStatus = false;
 //   }
+#elif defined(CST816S_SDA)
+  if (touch.available()) {
+    if (true) {
+      Serial.print(touch.gesture());
+      Serial.print("\t");
+      Serial.print(touch.data.points);
+      Serial.print("\t");
+      Serial.print(touch.data.event);
+      Serial.print("\t");
+      Serial.print(touch.data.x);
+      Serial.print("\t");
+      Serial.println(touch.data.y);      
+    }
+    _triggered();
+  }
 #elif defined(GT911_TP_SCL)  
   touchpad.read();
   if (touchpad.isTouched) {

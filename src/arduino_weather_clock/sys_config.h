@@ -91,8 +91,45 @@ const int32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_DOUT       42
   #define ES8311_I2S_DIN        40
   #define ES8311_VOLUME         60
+#elif defined(FOR_MUMA)
+  #define TFT_BL    42
+  #define TFT_CS    5
+  #define TFT_DC    47
+  #define TFT_SCLK  4
+  #define TFT_MOSI  2
+  #define TFT_RST   38
+  #define TFT_BL_LOW
+  #define TFT_X_OFF  0
+  // #define CST_TP_BUS_NUM  0  // TODO: no touch hardware
+  // #define CST_TP_SCL      7
+  // #define CST_TP_SDA      11
+  // #define CST_TP_RST      6
+  // #define CST_TP_INT      12
+  #define BUTTON_PIN  0    // boot
+  // #define CST816S_SCL      7
+  // #define CST816S_SDA      11
+  // #define CST816S_RST      6
+  // #define CST816S_INT      12
+  #define ES8311_PA             46 
+  #define ES8311_I2C_SCL        14
+  #define ES8311_I2C_SDA        15
+  #define ES8311_I2S_PORT       35 
+  #define ES8311_I2S_MCLK       16
+  #define ES8311_I2S_BCK        9  
+  #define ES8311_I2S_WS         45 
+  #define ES8311_I2S_DOUT       8
+  #define ES8311_I2S_DIN        10
+  #define ES8311_VOLUME         60
 #elif defined(FOR_TWATCH)
   #define TFT_X_OFF   0
+#elif defined(FOR_ESP32_LCD)  
+  #define TFT_BL    21
+  #define TFT_CS    15
+  #define TFT_DC    2
+  #define TFT_SCLK  14
+  #define TFT_MOSI  13
+  #define TFT_MISO  12
+  #define TFT_X_OFF   40
 #elif defined(FOR_ESP32_S3_EYE)
   #define TFT_CS      44
   #define TFT_DC      43

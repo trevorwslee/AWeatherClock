@@ -6,7 +6,7 @@
 #include "dd_tabs/dd_tab_helpers.h"
 
 #include "wifidumbdisplay.h"
-DumbDisplay dumbdisplay(new DDWiFiServerIO());
+DumbDisplay dumbdisplay(new DDWiFiServerIO(), 2 * DD_DEF_SEND_BUFFER_SIZE, 2 * DD_DEF_IDLE_TIMEOUT);
 DDMasterResetPassiveConnectionHelper pdd(dumbdisplay, true);
 
 

@@ -51,7 +51,7 @@
 #define DEF_SYNC_WEATHER_LOCATION_WITH_GPS  true /* got location from GPS when connected to DD */
 #define DEF_SLIDE_SHOW_IDLE_DELAY_MINS      2    /* <= 0 means slide show not enabled */
 #define DEF_SLIDE_DURATION_SECS             5
-#define DEF_UPDATE_WEATHER_INT_MINS         30
+#define DEF_UPDATE_WEATHER_INTERVAL_MINS    30
 
 #define NUM_ALARMS                          5
 #define AUTO_ACK_ALARM_MINUTES              10
