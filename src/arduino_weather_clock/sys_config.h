@@ -119,7 +119,7 @@ const int32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_WS         45 
   #define ES8311_I2S_DOUT       8
   #define ES8311_I2S_DIN        10
-  #define ES8311_VOLUME         60
+  #define ES8311_VOLUME         55
 #elif defined(FOR_TWATCH)
   #define TFT_X_OFF   0
 #elif defined(FOR_ESP32_LCD)  

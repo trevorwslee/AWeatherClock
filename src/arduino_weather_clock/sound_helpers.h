@@ -9,8 +9,8 @@ void playTone(int freq, int duration);
 void copyStarWars30Data(bool (*checkStopCallback)());
 #endif
 
-long soundAlarmBeepOnce();
-void soundAlarmBeep(bool (*checkStopCallback)());
+long soundAlarmBeepWithBuzzer();
+void soundAlarm(bool (*checkStopCallback)(), bool preferMusic = false);
 
 
 void soundSetup();

@@ -265,7 +265,7 @@ void _soundAlarmTaskFunc(void* param) {
   }
  #else 
   while (_alarmSoundingWithTask) {
-    soundAlarmBeep([](){ return !_alarmSoundingWithTask; });
+    soundAlarm([](){ return !_alarmSoundingWithTask; });
   }
   // while (_alarmSoundingWithTask) {
   //   long usedMillis = soundAlarmBeepOnce();
@@ -311,7 +311,7 @@ bool alarmsLoop() {
         );
       }
 #else
-      soundAlarmBeepOnce();
+      soundAlarmBeepWithBuzzer();
       // for (int i = 0; i < _NumBeeps; i++) {
       //   _Beep& beep = _Beeps[i];
       //   playTone(beep.freq, beep.durationMillis);

@@ -26,61 +26,7 @@ static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
   // StreamCopy audioCopier(audioOut, audioSound);
 #endif
 
-#if defined(ES8311_PA) // ES8311  
-#include "snds/StarWars30.h"
-void copyStarWars30Data(bool (*checkStopCallback)()) {  // TODO: working on copyStarWars30Data
-  AudioInfo info(22050, 1, 16);
-  I2SCodecStream out(audioBoard);
-  MemoryStream music(StarWars30_raw, StarWars30_raw_len);
-  StreamCopy copier(out, music); // copies sound into i2s
-  auto config = out.defaultConfig();
-  config.copyFrom(info);
-  out.begin(config);
-  #if defined(ES8311_VOLUME)
-  audioBoard.setVolume(ES8311_VOLUME);
-  #endif
-  while (!checkStopCallback() && copier.copy()) {
-  }
-  //Serial.println("... done copying");
-  out.end();
-}
-void copyAlarmBeepData(bool (*checkStopCallback)()) {
-  AudioInfo audioInfo(44100, 2, 16);
-  SineWaveGenerator<int16_t> audioSineWave(32000);
-  GeneratedSoundStream<int16_t> audioSound(audioSineWave);
-  I2SCodecStream audioOut(audioBoard);
-  StreamCopy audioCopier(audioOut, audioSound);
-  auto config = audioOut.defaultConfig();
-  config.copyFrom(audioInfo);
-  audioOut.begin(config);
-  audioSineWave.begin(audioInfo/*, N_B4*/); 
-  while (!checkStopCallback()) {
-    long usedMillis = 0;
-    for (int i = 0; i < _NumBeeps; i++) {
-      _Beep& beep = _Beeps[i];
-      //playTone(beep.freq, beep.durationMillis);
-      int freq = beep.freq;
-      int duration = beep.durationMillis;
-      float cycleCount = duration / 5.5;  // around 180 cycles per second
-      audioSineWave.setFrequency(freq);
-  #if defined(ES8311_VOLUME)
-      audioBoard.setVolume(ES8311_VOLUME);
-  #endif
-      for (int i = 0; i < cycleCount; i++) {
-        audioCopier.copy();
-      }
-      usedMillis += beep.durationMillis;
-    }
-    long delayMillis = 1000 - usedMillis;
-    if (delayMillis > 0) {
-      delay(delayMillis);
-    }
-  }
-  audioSineWave.end();
-}
-#endif
-
-void playTone(int freq, int duration) {
+void _playToneWithBuzzer(int freq, int duration) {
   #if defined(BUZZER_PIN)
     #if defined(ESP32)
       tone(BUZZER_PIN, freq, duration);
@@ -104,22 +50,91 @@ void playTone(int freq, int duration) {
   #endif    
 }
   
-long soundAlarmBeepOnce() {
+
+
+long soundAlarmBeepWithBuzzer() {
   long usedMillis = 0;
   for (int i = 0; i < _NumBeeps; i++) {
     _Beep& beep = _Beeps[i];
-    playTone(beep.freq, beep.durationMillis);
+    _playToneWithBuzzer(beep.freq, beep.durationMillis);
     usedMillis += beep.durationMillis;
   }
   return usedMillis;
 }
 
-void soundAlarmBeep(bool (*checkStopCallback)()) {
+
 #if defined(ES8311_PA) // ES8311  
-  copyAlarmBeepData(checkStopCallback);
+#include "snds/StarWars30.h"
+void _copyStarWars30Data(bool (*checkStopCallback)()) {
+  AudioInfo info(22050, 1, 16);
+  while (!checkStopCallback()) {
+    //audioBoard.setVolume(0);
+    I2SCodecStream out(audioBoard);
+    MemoryStream music(StarWars30_raw, StarWars30_raw_len);
+    StreamCopy copier(out, music); // copies sound into i2s
+    auto config = out.defaultConfig();
+    config.copyFrom(info);
+    out.begin(config);
+  #if defined(ES8311_VOLUME)    
+    audioBoard.setVolume(ES8311_VOLUME);
+  #endif  
+    copier.begin();
+    while (!checkStopCallback() && copier.copy()) {
+    }
+    out.end();
+  }
+}
+void _copyAlarmBeepData(bool (*checkStopCallback)()) {
+  AudioInfo audioInfo(44100, 2, 16);
+  SineWaveGenerator<int16_t> audioSineWave(32000);
+  GeneratedSoundStream<int16_t> audioSound(audioSineWave);
+  I2SCodecStream audioOut(audioBoard);
+  StreamCopy audioCopier(audioOut, audioSound);
+  auto config = audioOut.defaultConfig();
+  config.copyFrom(audioInfo);
+  audioOut.begin(config);
+  audioSineWave.begin(audioInfo/*, N_B4*/); 
+  while (!checkStopCallback()) {
+    long usedMillis = 0;
+    for (int i = 0; i < _NumBeeps; i++) {
+      _Beep& beep = _Beeps[i];
+      //playTone(beep.freq, beep.durationMillis);
+      int freq = beep.freq;
+      int duration = beep.durationMillis;
+      float cycleCount = duration / 5.5;  // around 180 cycles per second
+      audioSineWave.setFrequency(freq);
+  #if defined(ES8311_VOLUME)    
+      audioBoard.setVolume(ES8311_VOLUME);
+  #endif    
+      for (int i = 0; i < cycleCount; i++) {
+        audioCopier.copy();
+      }
+      usedMillis += beep.durationMillis;
+    }
+    long delayMillis = 1000 - usedMillis;
+    if (delayMillis > 0) {
+      delay(delayMillis);
+    }
+  }
+  audioSineWave.end();
+}
+#endif
+
+//bool debug_pm = true;
+void soundAlarm(bool (*checkStopCallback)(), bool preferMusic) {
+  // if (false) {
+  //   preferMusic = debug_pm;
+  //   debug_pm = !debug_pm;
+  // }
+#if defined(ES8311_PA) // ES8311  
+  if (preferMusic) {
+    _copyStarWars30Data(checkStopCallback);
+  } else {
+    _copyAlarmBeepData(checkStopCallback);
+  }
 #else 
   while (!checkStopCallback()) {
-    long usedMillis = soundAlarmBeepOnce();
+    long usedMillis = soundAlarmBeepWithBuzzer();
     long delayMillis = 1000 - usedMillis;
     if (delayMillis > 0) {
       delay(delayMillis);

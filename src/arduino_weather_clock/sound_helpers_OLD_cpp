@@ -76,7 +76,7 @@ void playTone(int freq, int duration) {
   #endif    
 }
   
-long soundAlarmBeepOnce() {
+long soundAlarmBeepWithBuzzer() {
   long usedMillis = 0;
   for (int i = 0; i < _NumBeeps; i++) {
     _Beep& beep = _Beeps[i];
