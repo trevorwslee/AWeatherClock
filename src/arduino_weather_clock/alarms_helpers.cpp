@@ -16,21 +16,29 @@
 #define CHECK_ALARM_ALLOWANCE_SECONDS -15
 
 
-#if defined(ESP32)
+#if defined(ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 
-struct _Beep {
-  int freq;
-  int durationMillis;
-};
+// #if defined(USE_TASK_FOR_ALARM_SOUND) && defined(ES8311_PA)
+//   #define ALARM_MELODY_INSTEAD_OF_BEEP
+// #endif
 
-static _Beep _Beeps[] = {
-  {1000, 100},
-  {3000, 200},
-  {1000, 100}
-};
-static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
+// #if defined(ALARM_MELODY_INSTEAD_OF_BEEP)
+// #include "snds/StarWars30.h"
+// #endif
+
+// struct _Beep {
+//   int freq;
+//   int durationMillis;
+// };
+
+// static _Beep _Beeps[] = {
+//   {1000, 100},
+//   {3000, 200},
+//   {1000, 100}
+// };
+// static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
 
 
 
@@ -239,25 +247,34 @@ void _forceSetDebugAlarms() {
   //eeprompt_saveAlarms();
 }
 
-long _alarmBeep() {
-  long usedMillis = 0;
-  for (int i = 0; i < _NumBeeps; i++) {
-    _Beep& beep = _Beeps[i];
-    playTone(beep.freq, beep.durationMillis);
-    usedMillis += beep.durationMillis;
-  }
-  return usedMillis;
-}
+// long _alarmBeep() {
+//   long usedMillis = 0;
+//   for (int i = 0; i < _NumBeeps; i++) {
+//     _Beep& beep = _Beeps[i];
+//     playTone(beep.freq, beep.durationMillis);
+//     usedMillis += beep.durationMillis;
+//   }
+//   return usedMillis;
+// }
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 void _soundAlarmTaskFunc(void* param) {
+ #if defined(ALARM_MELODY_INSTEAD_OF_BEEP)
   while (_alarmSoundingWithTask) {
-    long usedMillis = _alarmBeep();
-    long delayMillis = 1000 - usedMillis;
-    if (delayMillis > 0) {
-      vTaskDelay(delayMillis / portTICK_PERIOD_MS);
-    }
+    copyStarWars30Data([](){ return !_alarmSoundingWithTask; });
   }
+ #else 
+  while (_alarmSoundingWithTask) {
+    soundAlarmBeep([](){ return !_alarmSoundingWithTask; });
+  }
+  // while (_alarmSoundingWithTask) {
+  //   long usedMillis = soundAlarmBeepOnce();
+  //   long delayMillis = 1000 - usedMillis;
+  //   if (delayMillis > 0) {
+  //     vTaskDelay(delayMillis / portTICK_PERIOD_MS);
+  //   }
+  // }
+ #endif 
   vTaskDelete(NULL);
 }
 #endif
@@ -294,7 +311,7 @@ bool alarmsLoop() {
         );
       }
 #else
-      _alarmBeep();
+      soundAlarmBeepOnce();
       // for (int i = 0; i < _NumBeeps; i++) {
       //   _Beep& beep = _Beeps[i];
       //   playTone(beep.freq, beep.durationMillis);

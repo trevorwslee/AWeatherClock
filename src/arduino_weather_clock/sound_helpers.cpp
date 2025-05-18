@@ -1,27 +1,87 @@
 #include "config.h"
 
 
+struct _Beep {
+  int freq;
+  int durationMillis;
+};
+
+static _Beep _Beeps[] = {
+  {1000, 100},
+  {3000, 200},
+  {1000, 100}
+};
+static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
+
+
+
 #if defined(ES8311_PA) // ES8311  
   #include "AudioTools.h"
   #include "AudioTools/AudioLibs/I2SCodecStream.h"
   DriverPins audioPins;
   AudioBoard audioBoard(AudioDriverES8311, audioPins);
+  // SineWaveGenerator<int16_t> audioSineWave(32000);
+  // GeneratedSoundStream<int16_t> audioSound(audioSineWave);
+  // I2SCodecStream audioOut(audioBoard);
+  // StreamCopy audioCopier(audioOut, audioSound);
+#endif
+
+#if defined(ES8311_PA) // ES8311  
+#include "snds/StarWars30.h"
+void copyStarWars30Data(bool (*checkStopCallback)()) {  // TODO: working on copyStarWars30Data
+  AudioInfo info(22050, 1, 16);
+  I2SCodecStream out(audioBoard);
+  MemoryStream music(StarWars30_raw, StarWars30_raw_len);
+  StreamCopy copier(out, music); // copies sound into i2s
+  auto config = out.defaultConfig();
+  config.copyFrom(info);
+  out.begin(config);
+  #if defined(ES8311_VOLUME)
+  audioBoard.setVolume(ES8311_VOLUME);
+  #endif
+  while (!checkStopCallback() && copier.copy()) {
+  }
+  //Serial.println("... done copying");
+  out.end();
+}
+void copyAlarmBeepData(bool (*checkStopCallback)()) {
   AudioInfo audioInfo(44100, 2, 16);
   SineWaveGenerator<int16_t> audioSineWave(32000);
   GeneratedSoundStream<int16_t> audioSound(audioSineWave);
   I2SCodecStream audioOut(audioBoard);
   StreamCopy audioCopier(audioOut, audioSound);
+  auto config = audioOut.defaultConfig();
+  config.copyFrom(audioInfo);
+  audioOut.begin(config);
+  audioSineWave.begin(audioInfo/*, N_B4*/); 
+  while (!checkStopCallback()) {
+    long usedMillis = 0;
+    for (int i = 0; i < _NumBeeps; i++) {
+      _Beep& beep = _Beeps[i];
+      //playTone(beep.freq, beep.durationMillis);
+      int freq = beep.freq;
+      int duration = beep.durationMillis;
+      float cycleCount = duration / 5.5;  // around 180 cycles per second
+      audioSineWave.setFrequency(freq);
+  #if defined(ES8311_VOLUME)
+      audioBoard.setVolume(ES8311_VOLUME);
+  #endif
+      for (int i = 0; i < cycleCount; i++) {
+        audioCopier.copy();
+      }
+      usedMillis += beep.durationMillis;
+    }
+    long delayMillis = 1000 - usedMillis;
+    if (delayMillis > 0) {
+      delay(delayMillis);
+    }
+  }
+  audioSineWave.end();
+}
 #endif
 
-
 void playTone(int freq, int duration) {
-  #if defined(ES8311_PA)  
-    float cycleCount = duration / 5.5;  // around 180 cycles per second
-    audioSineWave.setFrequency(freq);
-    for (int i = 0; i < cycleCount; i++) {
-      audioCopier.copy();
-    }
-  #elif defined(BUZZER_PIN)
+  #if defined(BUZZER_PIN)
     #if defined(ESP32)
       tone(BUZZER_PIN, freq, duration);
       delay(duration);
@@ -44,6 +104,32 @@ void playTone(int freq, int duration) {
   #endif    
 }
   
+long soundAlarmBeepOnce() {
+  long usedMillis = 0;
+  for (int i = 0; i < _NumBeeps; i++) {
+    _Beep& beep = _Beeps[i];
+    playTone(beep.freq, beep.durationMillis);
+    usedMillis += beep.durationMillis;
+  }
+  return usedMillis;
+}
+
+void soundAlarmBeep(bool (*checkStopCallback)()) {
+#if defined(ES8311_PA) // ES8311  
+  copyAlarmBeepData(checkStopCallback);
+#else 
+  while (!checkStopCallback()) {
+    long usedMillis = soundAlarmBeepOnce();
+    long delayMillis = 1000 - usedMillis;
+    if (delayMillis > 0) {
+      delay(delayMillis);
+    }
+  }
+#endif  
+}
+
+
+
 
 void soundSetup() {
 #if defined(ES8311_PA)  
@@ -68,18 +154,20 @@ void soundSetup() {
   audioBoard.begin(cfg); 
 
 
-  // start I2S & codec with i2c and i2s configured above
-  Serial.println("starting I2S...");
-  auto config = audioOut.defaultConfig();
-  config.copyFrom(audioInfo);
-  audioOut.begin(config);
+  // AudioInfo audioInfo(44100, 2, 16);
 
-  // Setup sine wave
-  audioSineWave.begin(audioInfo/*, N_B4*/);  
+  // // start I2S & codec with i2c and i2s configured above
+  // Serial.println("starting I2S...");
+  // auto config = audioOut.defaultConfig();
+  // config.copyFrom(audioInfo);
+  // audioOut.begin(config);
 
-  #if defined(ES8311_VOLUME)
-  audioBoard.setVolume(ES8311_VOLUME);
-  #endif
+  // // Setup sine wave
+  // audioSineWave.begin(audioInfo/*, N_B4*/);  
+
+  // #if defined(ES8311_VOLUME)
+  // audioBoard.setVolume(ES8311_VOLUME);
+  // #endif
 
 #elif defined(BUZZER_PIN)
   pinMode(BUZZER_PIN, OUTPUT);
