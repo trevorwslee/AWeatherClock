@@ -16,30 +16,12 @@
 #define CHECK_ALARM_ALLOWANCE_SECONDS -15
 
 
-#if defined(ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
+// #if defined(ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
+//   #define USE_TASK_FOR_ALARM_SOUND
+// #endif
+#if defined(ESP32)
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
-
-// #if defined(USE_TASK_FOR_ALARM_SOUND) && defined(ES8311_PA)
-//   #define ALARM_MELODY_INSTEAD_OF_BEEP
-// #endif
-
-// #if defined(ALARM_MELODY_INSTEAD_OF_BEEP)
-// #include "snds/StarWars30.h"
-// #endif
-
-// struct _Beep {
-//   int freq;
-//   int durationMillis;
-// };
-
-// static _Beep _Beeps[] = {
-//   {1000, 100},
-//   {3000, 200},
-//   {1000, 100}
-// };
-// static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
-
 
 
 Alarm _alarms[NUM_ALARMS];
@@ -259,22 +241,8 @@ void _forceSetDebugAlarms() {
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 void _soundAlarmTaskFunc(void* param) {
- #if defined(ALARM_MELODY_INSTEAD_OF_BEEP)
-  while (_alarmSoundingWithTask) {
-    copyStarWars30Data([](){ return !_alarmSoundingWithTask; });
-  }
- #else 
-  while (_alarmSoundingWithTask) {
-    soundAlarm([](){ return !_alarmSoundingWithTask; });
-  }
-  // while (_alarmSoundingWithTask) {
-  //   long usedMillis = soundAlarmBeepOnce();
-  //   long delayMillis = 1000 - usedMillis;
-  //   if (delayMillis > 0) {
-  //     vTaskDelay(delayMillis / portTICK_PERIOD_MS);
-  //   }
-  // }
- #endif 
+  soundAlarm([](){ return !_alarmSoundingWithTask; }, AlarmPreferredType::Melody, 0);  // TODO: hardcode to use melody 0
+  //soundAlarm([](){ return !_alarmSoundingWithTask; });
   vTaskDelete(NULL);
 }
 #endif
