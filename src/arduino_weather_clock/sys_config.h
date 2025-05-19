@@ -14,6 +14,7 @@
 // comment out if you want the program to delay startup for 10 seconds for debugging (examine the serial monitor output)
 //#define DELAY_INITIALIZE_FOR_SECONDS 10
 
+
 // if want to reset the saved program settings *** INCLUDING saved slides ***
 // suggested to set the following EEPROM_HEADER to the date you want to do the reset
 const uint32_t EEPROM_HEADER = 20250505;
@@ -174,7 +175,7 @@ const uint32_t EEPROM_HEADER = 20250505;
 #define TFT_HEIGHT  240
 
 
-#if defined(ESP32)
+#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA))
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 

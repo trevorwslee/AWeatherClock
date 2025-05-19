@@ -217,6 +217,10 @@ void eeprom_initialization() {
     version = (header >> 28) & 0xf;
     header = 0x0fffffff & header;
   }
+#if defined(SET_EEPROM_HEADER_TO_0)
+  Serial.println("EEPROM ***** ALWAYS_RESET_EEPROM ***** ==> set header `" + String(header) + "` to `" + String(0) + "`");
+  header = 0;
+#endif  
   if (header == EEPROM_HEADER) {
     Serial.println("EEPROM header `" + String(header) + "` matched with version `" + String(version) + "`");
     _readGlobalSettings(version);

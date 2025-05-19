@@ -91,7 +91,11 @@ namespace {
 #if defined(SUPPORT_ALARM_SOUNDS)
   void syncCurrEditingSoundSelection() {
     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
-    alarmSoundSelection->select(currEditingAlarm.alarmSoundIdx);
+    int alarmSoundIdx = currEditingAlarm.alarmSoundIdx;
+    if (alarmSoundIdx < 0 || alarmSoundIdx >= getAlarmSoundSelectCount()) {
+      alarmSoundIdx = 0;
+    }
+    alarmSoundSelection->select(alarmSoundIdx);
   }
 #endif
 
