@@ -9,6 +9,7 @@
 #if defined(FOR_TWATCH)  
   #include <LilyGoWatch.h>
 #endif
+#include "melody_helpers.h"
 
 
 #define LOG_CHECK_ALARM               true
@@ -77,6 +78,31 @@ void ackAlarmDue() {
     _lastDisplayInverted = false;
   }
  
+}
+
+int getAlarmSoundSelectCount() {
+  int selectionCount = 1;
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  selectionCount += NumMelodies;
+  #if defined(ES8311_PA)
+  selectionCount += 1;
+  #endif
+#endif
+  return selectionCount;
+}
+const char* getAlarmSoundSelectText(int alarmSoundIdx) {
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  if (alarmSoundIdx > 0) {
+    int melodyIdx = alarmSoundIdx - 1;
+    if (melodyIdx >= 0 && melodyIdx < NumMelodies) {
+      return Melodies[melodyIdx].name;
+    }
+  #if defined(ES8311_PA)
+    return "Star Wars";
+  #endif  
+  }
+#endif  
+  return "Beep"; 
 }
 
 void alarmsSetup() {

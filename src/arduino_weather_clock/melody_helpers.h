@@ -3,7 +3,7 @@
 
 
 struct Melody {
-  String melodyName;
+  const char* name;
   const char* song;
   const char* octave;
   const char* beat;

@@ -19,6 +19,11 @@ void setAlarm(int idx, Alarm& alarm, const char* printPrefix = nullptr, bool sav
 
 void ackAlarmDue();
 
+
+int getAlarmSoundSelectCount();
+const char* getAlarmSoundSelectText(int alarmSoundIdx);
+
+
 void alarmsSetup();
 bool alarmsLoop();
 

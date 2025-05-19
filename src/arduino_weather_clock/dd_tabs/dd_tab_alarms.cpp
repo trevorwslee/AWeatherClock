@@ -9,10 +9,10 @@
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
   #define SUPPORT_ALARM_SOUNDS
-  #define ALARM_SOUND_MELODY_START_IDX 1
-  #if defined(ES8311_PA)
-    #define MUSIC_AS_ALARM_SOUND
-  #endif  
+  // #define ALARM_SOUND_MELODY_START_IDX 1
+  // #if defined(ES8311_PA)
+  //   #define MUSIC_AS_ALARM_SOUND
+  // #endif  
 #endif
 
 
@@ -240,14 +240,11 @@ void dd_alarms_setup(bool recreateLayers) {
 
 #if defined(SUPPORT_ALARM_SOUNDS)
     alarmSoundSelection = dumbdisplay.createSelectionLayer(13, 1, 2, 2);
-    alarmSoundSelection->textCentered("Beep", 0, 0);
-    for (int i = 0; i < NumMelodies; i++) {
-      String melodyName = Melodies[i].melodyName;
-      alarmSoundSelection->textCentered(melodyName, 0, i + ALARM_SOUND_MELODY_START_IDX);
+    int alarmSoundSelectCount = getAlarmSoundSelectCount();
+    for (int i = 0; i < alarmSoundSelectCount; i++) {
+      String text = getAlarmSoundSelectText(i);
+      alarmSoundSelection->textCentered(text, 0, i);
     }
-  #if defined(MUSIC_AS_ALARM_SOUND)    
-    alarmSoundSelection->textCentered("Star Wars", 0, ALARM_SOUND_MELODY_START_IDX + NumMelodies);
-  #endif
 #endif
 
     autoPinConfig = DDAutoPinConfig('H', 8)
