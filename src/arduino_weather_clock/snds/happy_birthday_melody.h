@@ -28,14 +28,14 @@ const int amazing_grace_beatSpeed = 300;
 
 
 /* GPT-4o results */
-// const char* happy_birthday_nodenames = "G G A G C B G G A G D C G G G E C B A F F E C D C ";
-// const char* happy_birthday_octaves   = "0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 1 1 1 0 0 0 1 1 1 ";
-// const char* happy_birthday_beats     = "1 1 2 2 2 4 1 1 2 2 2 4 1 1 2 2 2 2 4 1 1 2 2 2 4 ";
-// const int happy_birthday_beatSpeed = 300;
+const char* happy_birthday_nodenames = "G G A G C B G G A G D C G G G E C B A F F E C D C ";
+const char* happy_birthday_octaves   = "0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 1 1 1 0 0 0 1 1 1 ";
+const char* happy_birthday_beats     = "1 1 2 2 2 4 1 1 2 2 2 4 1 1 2 2 2 2 4 1 1 2 2 2 4 ";
+const int happy_birthday_beatSpeed = 300;
 
 
 /* DeepSeek R1 results */
-const char* happy_birthday_nodenames = "G G A G C B G G A G D C G G G E C B A F F E C D C ";
-const char* happy_birthday_octaves   = "0 0 0 0 1 0 0 0 0 0 1 1 0 0 0 1 1 0 0 0 0 0 1 1 1 ";
-const char* happy_birthday_beats     = "2 1 2 2 4 4 2 1 2 2 4 4 1 1 2 2 2 1 4 2 2 2 2 2 4 ";
-const int happy_birthday_beatSpeed = 300;
+// const char* happy_birthday_nodenames = "G G A G C B G G A G D C G G G E C B A F F E C D C ";
+// const char* happy_birthday_octaves   = "0 0 0 0 1 0 0 0 0 0 1 1 0 0 0 1 1 0 0 0 0 0 1 1 1 ";
+// const char* happy_birthday_beats     = "2 1 2 2 4 4 2 1 2 2 4 4 1 1 2 2 2 1 4 2 2 2 2 2 4 ";
+// const int happy_birthday_beatSpeed = 300;

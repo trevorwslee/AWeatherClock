@@ -12,7 +12,7 @@
 //#define TEST_WIFI_MANAGER
 
 // comment out if you want the program to delay startup for 10 seconds for debugging (examine the serial monitor output)
-#define DELAY_INITIALIZE_FOR_SECONDS 10
+//#define DELAY_INITIALIZE_FOR_SECONDS 10
 
 // if want to reset the saved program settings *** INCLUDING saved slides ***
 // suggested to set the following EEPROM_HEADER to the date you want to do the reset
@@ -157,7 +157,7 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_WS   45
   #define ES8311_I2S_DOUT 15
   #define ES8311_I2S_DIN  16
-  #define ES8311_VOLUME   50
+  #define ES8311_VOLUME   60
   #define BUTTON_PIN  0    // boot
   // #define GT911_TP_SCL       18  // TODO: not working very well ... sometimes not working
   // #define GT911_TP_SDA       8

@@ -28,6 +28,7 @@
 Alarm _alarms[NUM_ALARMS];
 int _nextAlarmDueIdx = -1;
 int16_t _checkedNextAlarmIdxDay = -1;
+int _dueAlarmIdx = -1;
 long _alarmDueMillis = -1;
 CurrTime _lastAlarmDueTime;
 long _lastAlarmBeepMillis;
@@ -73,6 +74,7 @@ void ackAlarmDue() {
 #if defined(USE_TASK_FOR_ALARM_SOUND)
   _alarmSoundingWithTask = false;
 #endif
+  _dueAlarmIdx = -1;
   _alarmDueMillis = -1;
   _checkedNextAlarmIdxDay = -1;
   if (_lastDisplayInverted) {
@@ -270,8 +272,25 @@ void _forceSetDebugAlarms() {
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 void _soundAlarmTaskFunc(void* param) {
-  soundAlarm([](){ return !_alarmSoundingWithTask; }, AlarmPreferredType::Melody, 0);  // TODO: hardcode to use melody 0
-  //soundAlarm([](){ return !_alarmSoundingWithTask; });
+  if (_dueAlarmIdx != -1) {
+    Alarm& alarm = _alarms[_dueAlarmIdx];
+    AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
+    int alarmParam = -1;
+    if (alarm.alarmSoundIdx > 0) {
+      int melodyIdx = alarm.alarmSoundIdx - 1;
+      if (melodyIdx >= 0 && melodyIdx < NumMelodies) {
+        preferAlarmType = AlarmPreferredType::Melody;
+        alarmParam = melodyIdx;
+      }
+  #if defined(ES8311_PA)
+      else {
+        preferAlarmType = AlarmPreferredType::Music;
+        alarmParam = 0;
+      }
+  #endif  
+    }
+    soundAlarm([](){ return !_alarmSoundingWithTask; }, preferAlarmType, alarmParam);
+  }
   vTaskDelete(NULL);
 }
 #endif
@@ -339,16 +358,21 @@ bool alarmsLoop() {
     Alarm& alarm = _alarms[_nextAlarmDueIdx];
     bool alarmDue = alarm.hour == currTime.hour && alarm.minute == currTime.minute;
     if (alarmDue) {
-      if (alarm.weekDayMask == 0) {
-        alarm.enabled = false; // one-time alarm
-        eeprompt_saveAlarm(_nextAlarmDueIdx);
-      }
+      _dueAlarmIdx = _nextAlarmDueIdx;
+      // if (alarm.weekDayMask == 0) {
+      //   alarm.enabled = false; // one-time alarm
+      //   eeprompt_saveAlarm(_dueAlarmIdx/*_nextAlarmDueIdx*/);
+      // }
       _alarmDueMillis = millis();
       _lastAlarmDueTime = currTime;
       _lastAlarmBeepMillis = -1;
-      Alarm& alarm = _alarms[_nextAlarmDueIdx];
+      if (alarm.weekDayMask == 0) {
+        alarm.enabled = false; // one-time alarm
+        eeprompt_saveAlarm(_dueAlarmIdx/*_nextAlarmDueIdx*/);
+      }
+      Alarm& alarm = _alarms[_dueAlarmIdx/*_nextAlarmDueIdx*/];
       Serial.print("$$$ alarm [");
-      Serial.print(_nextAlarmDueIdx);
+      Serial.print(_dueAlarmIdx/*_nextAlarmDueIdx*/);
       Serial.print("] due -- ");
       Serial.print(alarm.hour);
       Serial.print(":");

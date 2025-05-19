@@ -88,6 +88,13 @@ namespace {
     }
   }
 
+#if defined(SUPPORT_ALARM_SOUNDS)
+  void syncCurrEditingSoundSelection() {
+    Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
+    alarmSoundSelection->select(currEditingAlarm.alarmSoundIdx);
+  }
+#endif
+
   void syncCurrEditingAlarmHourSelection() {
     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
     hourSelection->showFormatted(String(100 + currEditingAlarm.hour).substring(1));
@@ -158,6 +165,19 @@ namespace {
     syncEditingAlarmSelection(currEditingAlarmIdx, true, true);    
     currEditingAlarmDirty = true;
   }
+ 
+#if defined(SUPPORT_ALARM_SOUNDS)
+  void setCurrEditingAlarmSound(int alarmSoundIdx) {
+    if (alarmSoundIdx < 0 || alarmSoundIdx >= getAlarmSoundSelectCount()) {
+      return;
+    }
+    // Serial.print("***** setCurrEditingAlarmSound ... currEditingAlarmIdx: ");
+    // Serial.println(currEditingAlarmIdx);
+    Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
+    currEditingAlarm.alarmSoundIdx = alarmSoundIdx;
+    syncCurrEditingSoundSelection();
+  }
+#endif
 
   void ensureCurrEditingAlarmSet() {
     if (currEditingAlarmDirty) {
@@ -177,6 +197,9 @@ namespace {
     }
     currEditingAlarmIdx = alarmIdx;
     syncCurrEditingAlarmOnOffSelection();      
+  #if defined(SUPPORT_ALARM_SOUNDS)
+    syncCurrEditingSoundSelection();
+  #endif
     syncCurrEditingAlarmHourSelection();
     syncCurrEditingAlarmMinuteSelection();
     return true;
@@ -245,6 +268,7 @@ void dd_alarms_setup(bool recreateLayers) {
       String text = getAlarmSoundSelectText(i);
       alarmSoundSelection->textCentered(text, 0, i);
     }
+    alarmSoundSelection->enableFeedback();
 #endif
 
     autoPinConfig = DDAutoPinConfig('H', 8)
@@ -292,6 +316,9 @@ bool dd_alarms_loop() {
   const DDFeedback* minuteDownButtonFeedback = minuteDownButton->getFeedback();
   const DDFeedback* hourSelectionFeedback = hourSelection->getFeedback();
   const DDFeedback* minuteSelectionFeedback = minuteSelection->getFeedback();
+#if defined(SUPPORT_ALARM_SOUNDS)
+  const DDFeedback* alarmSoundSelectionFeedback = alarmSoundSelection->getFeedback();  
+#endif
   if (alarmSelectionFeedback != nullptr) {
     int alarmIdx = alarmSelectionFeedback->y;
     editAlarmSelection->flashArea(0, alarmIdx);
@@ -331,6 +358,19 @@ bool dd_alarms_loop() {
     int minute = minuteSelectionFeedback->text.toInt();
     setCurrEditingAlarmHourMinute(-1, minute);
   }
+#if defined(SUPPORT_ALARM_SOUNDS)
+  if (alarmSoundSelectionFeedback != nullptr) {
+    int x = alarmSoundSelectionFeedback->x;
+    int y = alarmSoundSelectionFeedback->y;
+    int alarmSoundIdx = x + 2 * y;
+    if (alarmSoundIdx >= 0 && alarmSoundIdx < getAlarmSoundSelectCount()) {
+      // Serial.print("***** setCurrEditingAlarmSound ... alarmSoundIdx: ");
+      // Serial.println(alarmSoundIdx);
+      alarmSoundSelection->flashArea(x, y);
+      setCurrEditingAlarmSound(alarmSoundIdx);
+    }
+  }
+#endif
   return false;
 }
 
