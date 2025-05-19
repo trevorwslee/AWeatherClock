@@ -173,4 +173,9 @@ const int32_t EEPROM_HEADER = 20250505;
 #define TFT_HEIGHT  240
 
 
+#if defined(ESP32)
+  #define USE_TASK_FOR_ALARM_SOUND
+#endif
+
+
 #endif

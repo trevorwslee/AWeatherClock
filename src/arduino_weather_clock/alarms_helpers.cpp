@@ -279,7 +279,7 @@ bool alarmsLoop() {
         );
       }
 #else
-      soundAlarmBeepWithBuzzer();
+      playAlarmBeepWithBuzzer();
       // for (int i = 0; i < _NumBeeps; i++) {
       //   _Beep& beep = _Beeps[i];
       //   playTone(beep.freq, beep.durationMillis);
