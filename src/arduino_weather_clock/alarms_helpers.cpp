@@ -55,10 +55,13 @@ void setAlarm(int idx, Alarm& alarm, const char* printPrefix, bool saveAsWell) {
     Serial.print(alarm.enabled ? "enabled" : "disabled");
     Serial.print(", weekDayMask: ");
     Serial.print(alarm.weekDayMask, BIN);
+    Serial.print(", alarmSoundIdx: ");
+    Serial.print(alarm.alarmSoundIdx);
     Serial.print(", time: ");
     Serial.print(alarm.hour);
     Serial.print(":");
     Serial.println(alarm.minute);
+
   }
   if (saveAsWell) {
     eeprompt_saveAlarm(idx);

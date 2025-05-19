@@ -12,10 +12,11 @@
 //#define TEST_WIFI_MANAGER
 
 // comment out if you want the program to delay startup for 10 seconds for debugging (examine the serial monitor output)
-//#define DELAY_INITIALIZE_FOR_SECONDS 10
+#define DELAY_INITIALIZE_FOR_SECONDS 10
 
-// suggested to set the following EEPROM_HEADER to the date you want to reset the saved program settings *** INCLUDING saved slides ***
-const int32_t EEPROM_HEADER = 20250505;
+// if want to reset the saved program settings *** INCLUDING saved slides ***
+// suggested to set the following EEPROM_HEADER to the date you want to do the reset
+const uint32_t EEPROM_HEADER = 20250505;
 
 
 // DD_SHOW_IP_INTERVAL_SECONDS MUST be defined before

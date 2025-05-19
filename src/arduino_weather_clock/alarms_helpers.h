@@ -4,12 +4,28 @@
 #include <Arduino.h>
 
 
-struct Alarm {
+struct AlarmV0 {
   bool enabled = false;
   int16_t hour = 0;        // 0-23
   int16_t minute = 0;      // 0-59
   int16_t weekDayMask = 0; // 0: not repeated ... 1: Sun, 2: Mon, 4: Tue, 8: Wed, 16: Thu, 32: Fri, 64: Sat
 };
+
+// struct Alarm {
+//   bool enabled = false;
+//   int16_t hour = 0;        // 0-23
+//   int16_t minute = 0;      // 0-59
+//   int16_t weekDayMask = 0; // 0: not repeated ... 1: Sun, 2: Mon, 4: Tue, 8: Wed, 16: Thu, 32: Fri, 64: Sat
+// };
+
+struct Alarm {
+  bool enabled = false;
+  int16_t hour = 0;        // 0-23
+  int16_t minute = 0;      // 0-59
+  int16_t weekDayMask = 0; // 0: not repeated ... 1: Sun, 2: Mon, 4: Tue, 8: Wed, 16: Thu, 32: Fri, 64: Sat
+  int8_t alarmSoundIdx = 0;
+};
+
 
 
 //int getAlarmCount();
