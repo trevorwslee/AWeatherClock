@@ -19,9 +19,9 @@
 // #if defined(ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
 //   #define USE_TASK_FOR_ALARM_SOUND
 // #endif
-#if defined(ESP32)
-  #define USE_TASK_FOR_ALARM_SOUND
-#endif
+// #if defined(ESP32)
+//   #define USE_TASK_FOR_ALARM_SOUND
+// #endif
 
 
 Alarm _alarms[NUM_ALARMS];

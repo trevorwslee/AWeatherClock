@@ -2,6 +2,17 @@
 #include <Arduino.h>
 #include "melody_helpers.h"
 
+
+#include "snds/amazing_grace_melody.h"
+#include "snds/happy_birthday_melody.h"
+
+Melody Melodies[] = {
+  Melody {"Amazing Grace", amazing_grace_nodenames, amazing_grace_octaves, amazing_grace_beats, amazing_grace_beatSpeed},
+  Melody {"Birthday Song", happy_birthday_nodenames, happy_birthday_octaves, happy_birthday_beats, happy_birthday_beatSpeed},
+};
+const int NumMelodies = sizeof(Melodies) / sizeof(Melodies[0]);
+
+
 // noteName: C, D, E, F, G, A, B
 // halfNote: #, b
 int toNoteIdx(char noteName, char halfNote) {

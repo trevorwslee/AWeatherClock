@@ -1,9 +1,20 @@
 #include <Arduino.h>
 #include "dd_tab_helpers.h"
-#include <arduino_weather_clock/alarms_helpers.h>
+#include "arduino_weather_clock/sys_config.h"
+#include "arduino_weather_clock/alarms_helpers.h"
+#include <arduino_weather_clock/melody_helpers.h>
 
 
 #define ALARM_COUNT 5
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  #define SUPPORT_ALARM_SOUNDS
+  #define ALARM_SOUND_MELODY_START_IDX 1
+  #if defined(ES8311_PA)
+    #define MUSIC_AS_ALARM_SOUND
+  #endif  
+#endif
+
 
 namespace {
 
@@ -17,6 +28,10 @@ namespace {
   LcdDDLayer* hourDownButton;
   LcdDDLayer* minuteUpButton;
   LcdDDLayer* minuteDownButton;
+
+#if defined(SUPPORT_ALARM_SOUNDS)
+  SelectionDDLayer* alarmSoundSelection;
+#endif
 
   String autoPinConfig;
 
@@ -209,11 +224,31 @@ void dd_alarms_setup(bool recreateLayers) {
     colonLabel.turnOn(0, 2);
     colonLabel.turnOn(0, 4);
 
-    GraphicalDDLayerHandle setAlarmBackgroundHandle = dumbdisplay.createGraphicalLayerHandle(120, 100);
+    //GraphicalDDLayerHandle setAlarmBackgroundHandle = dumbdisplay.createGraphicalLayerHandle(120, 100);
+#if defined(SUPPORT_ALARM_SOUNDS)
+    int bgWidth = 100;
+    int begHeight = 120;
+#else
+    int bgWidth = 120;
+    int begHeight = 100;
+#endif    
+    GraphicalDDLayerHandle setAlarmBackgroundHandle = dumbdisplay.createGraphicalLayerHandle(bgWidth, begHeight);
     GraphicalDDLayer setAlarmBackground(setAlarmBackgroundHandle);
     setAlarmBackground.border(3, "darkgreen", "round", 1);
     setAlarmBackground.margin(1);
     setAlarmBackground.noBackgroundColor();
+
+#if defined(SUPPORT_ALARM_SOUNDS)
+    alarmSoundSelection = dumbdisplay.createSelectionLayer(13, 1, 2, 2);
+    alarmSoundSelection->textCentered("Beep", 0, 0);
+    for (int i = 0; i < NumMelodies; i++) {
+      String melodyName = Melodies[i].melodyName;
+      alarmSoundSelection->textCentered(melodyName, 0, i + ALARM_SOUND_MELODY_START_IDX);
+    }
+  #if defined(MUSIC_AS_ALARM_SOUND)    
+    alarmSoundSelection->textCentered("Star Wars", 0, ALARM_SOUND_MELODY_START_IDX + NumMelodies);
+  #endif
+#endif
 
     autoPinConfig = DDAutoPinConfig('H', 8)
       .addLayer(editAlarmSelection)
@@ -224,6 +259,9 @@ void dd_alarms_setup(bool recreateLayers) {
             .addLayer(onRepeatedSelection)
             .addLayer(weekDaySelection)
           .endGroup()
+#if defined(SUPPORT_ALARM_SOUNDS)
+          .addLayer(alarmSoundSelection)
+#endif
           .beginPaddedGroup('H', 0, 10, 0, 2)
             .beginGroup('V')
               .addLayer(hourUpButton)

@@ -18,23 +18,23 @@ static int const _NumBeeps = sizeof(_Beeps) / sizeof(_Beeps[0]);
 
 
 
-struct _Melody {
-  String melodyName;
-  const char* song;
-  const char* octave;
-  const char* beat;
-  int beatSpeed;
-};
+// struct _Melody {
+//   String melodyName;
+//   const char* song;
+//   const char* octave;
+//   const char* beat;
+//   int beatSpeed;
+// };
 
 
-#include "snds/amazing_grace_melody.h"
-#include "snds/happy_birthday_melody.h"
+// #include "snds/amazing_grace_melody.h"
+// #include "snds/happy_birthday_melody.h"
 
-static _Melody _Melodies[] = {
-  _Melody {"Happy Birthday", happy_birthday_nodenames, happy_birthday_octaves, happy_birthday_beats, happy_birthday_beatSpeed},
-  _Melody {"Amazing Grace", amazing_grace_nodenames, amazing_grace_octaves, amazing_grace_beats, amazing_grace_beatSpeed},
-};
-static int const _NumMelodies = sizeof(_Melodies) / sizeof(_Melodies[0]);
+// static _Melody _Melodies[] = {
+//   _Melody {"Happy Birthday", happy_birthday_nodenames, happy_birthday_octaves, happy_birthday_beats, happy_birthday_beatSpeed},
+//   _Melody {"Amazing Grace", amazing_grace_nodenames, amazing_grace_octaves, amazing_grace_beats, amazing_grace_beatSpeed},
+// };
+// static int const _NumMelodies = sizeof(_Melodies) / sizeof(_Melodies[0]);
 
 
 enum class _SoundAlarmToneType {
@@ -131,7 +131,7 @@ void _soundAlarmBeep(_SoundAlarmParam& soundAlarmParam) {
 
 void _soundAlarmMelody(_SoundAlarmParam& soundAlarmParam) {
   //_Melody& melody = _Melodies[melodyIdx];
-  _Melody& melody = *(_Melody*) soundAlarmParam.alarmParams;
+  Melody& melody = *(Melody*) soundAlarmParam.alarmParams;
   while (!soundAlarmParam.checkStopCallback()) {
     for (int i = 0;;) {
       if (soundAlarmParam.checkStopCallback()) {
@@ -207,10 +207,10 @@ void _copyAlarmToneData(bool (*checkStopCallback)(), void* alarmParams, void (*s
   audioSineWave.end();
 }
 bool _copyAlarmMelodyData(bool (*checkStopCallback)(), int melodyIdx) {
-  if (melodyIdx < 0 || melodyIdx >= _NumMelodies) {
+  if (melodyIdx < 0 || melodyIdx >= NumMelodies) {
     return false;
   }
-  _copyAlarmToneData(checkStopCallback, &_Melodies[melodyIdx], _soundAlarmMelody);
+  _copyAlarmToneData(checkStopCallback, &Melodies[melodyIdx], _soundAlarmMelody);
   return true;
   //_soundAlarmMelody(checkStopCallback, _Melodies[melodyIdx], _SoundAlarmToneType::Buzzer, nullptr);
   //return true;
@@ -261,10 +261,10 @@ void _soundAlarmBeepWithBuzzer(bool (*checkStopCallback)()) {
 
 
 bool _soundAlarmMelodyWithBuzzer(bool (*checkStopCallback)(), int melodyIdx) {
-  if (melodyIdx < 0 || melodyIdx >= _NumMelodies) {
+  if (melodyIdx < 0 || melodyIdx >= NumMelodies) {
     return false;
   }
-  _SoundAlarmParam soundAlarmParam = _SoundAlarmParam{checkStopCallback, &_Melodies[melodyIdx], _SoundAlarmToneType::Buzzer, nullptr};
+  _SoundAlarmParam soundAlarmParam = _SoundAlarmParam{checkStopCallback, &Melodies[melodyIdx], _SoundAlarmToneType::Buzzer, nullptr};
   _soundAlarmMelody(soundAlarmParam);
   return true;
   // if (melodyIdx < 0 || melodyIdx >= _NumMelodies) {
