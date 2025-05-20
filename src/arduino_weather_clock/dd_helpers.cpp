@@ -7,11 +7,13 @@
 
 #include "wifidumbdisplay.h"
 DumbDisplay dumbdisplay(new DDWiFiServerIO(), 2 * DD_DEF_SEND_BUFFER_SIZE, 2 * DD_DEF_IDLE_TIMEOUT);
-DDMasterResetPassiveConnectionHelper pdd(dumbdisplay, true);
+DDMasterResetPassiveConnectionHelper pdd(dumbdisplay);
 
 
 
-#define LOG_DD_GPS_LOCATION false
+#define ROOT_SWITCH_TAB_OPACITY 20
+#define ROOT_OPACITY            7
+#define LOG_DD_GPS_LOCATION     false
 
 
 struct Tab {
@@ -72,7 +74,12 @@ void selectCurrTab(int tabIdx) {
     dumbdisplay.resetPinLayers();
     dumbdisplay.pinLayer(tabSelection, 0, 0, 100, 10, "LB");
     
+    root->opacity(ROOT_SWITCH_TAB_OPACITY);
+    dumbdisplay.recordLayerCommands();
     currTab.setup(!currTab.createdLayers);
+    dumbdisplay.playbackLayerCommands();
+    root->opacity(ROOT_OPACITY);
+
     currTab.createdLayers = true;
   }
 }
@@ -83,7 +90,7 @@ void initializeDD() {
   root = dumbdisplay.setRootLayer(100, 120, "T");
   root->backgroundColor("beige");
   root->drawImageFileFit("dumbdisplay.png");
-  root->opacity(7);
+  root->opacity(ROOT_OPACITY);
   root->padding(1);
   root->border(1, "blue", "round", 0.5);
   root->addLevel("M", 100, 20, true);

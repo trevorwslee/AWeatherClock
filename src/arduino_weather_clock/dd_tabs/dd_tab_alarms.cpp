@@ -33,6 +33,10 @@ namespace {
   SelectionDDLayer* alarmSoundSelection;
 #endif
 
+#if defined(CAN_SET_VOLUME)
+  JoystickDDLayer *volumeSlider;
+#endif
+
   String autoPinConfig;
 
   Alarm editingAlarm[ALARM_COUNT];
@@ -275,6 +279,13 @@ void dd_alarms_setup(bool recreateLayers) {
     alarmSoundSelection->enableFeedback();
 #endif
 
+#if defined(CAN_SET_VOLUME)
+    volumeSlider = dumbdisplay.createJoystickLayer(100, "bt", 0.5);
+    volumeSlider->valueRange(1, 100);
+    volumeSlider->snappy(true);
+    volumeSlider->showValue(true, "white");
+#endif
+
     autoPinConfig = DDAutoPinConfig('H', 8)
       .addLayer(editAlarmSelection)
       .beginGroup('S')
@@ -302,7 +313,10 @@ void dd_alarms_setup(bool recreateLayers) {
           .endPaddedGroup()
         .endPaddedGroup()
       .endGroup()
-      .build();
+#if defined(CAN_SET_VOLUME)
+      .addLayer(volumeSlider)
+#endif
+    .build();
   }
 
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");
