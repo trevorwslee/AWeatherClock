@@ -3,6 +3,13 @@
 #include "melody_helpers.h"
 
 
+// it is better to set _AUDIO_DECL_ to static ... however, this will cause problem if need to play music (Star Wars)
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  #define _AUDIO_DECL_
+#else
+  #define _AUDIO_DECL_ static
+#endif
+
 struct _Beep {
   int freq;
   int durationMillis;
@@ -119,7 +126,7 @@ long _playAlarmBeep(_SoundAlarmToneType toneType, void* toneParams) {
   return usedMillis;
 }
 
-void _soundAlarmBeep(_SoundAlarmParam& soundAlarmParam) {
+void _copy_soundAlarmBeep(_SoundAlarmParam& soundAlarmParam) {
   while (!soundAlarmParam.checkStopCallback()) {
     long usedMillis = _playAlarmBeep(soundAlarmParam.toneType, soundAlarmParam.toneParams);
     long delayMillis = 1000 - usedMillis;
@@ -129,7 +136,15 @@ void _soundAlarmBeep(_SoundAlarmParam& soundAlarmParam) {
   }
 }
 
-void _soundAlarmMelody(_SoundAlarmParam& soundAlarmParam) {
+void _copy_playAlarmBeep(_SoundAlarmParam& soundAlarmParam) {
+  long usedMillis = _playAlarmBeep(soundAlarmParam.toneType, soundAlarmParam.toneParams);
+  long delayMillis = 1000 - usedMillis;
+  if (delayMillis > 0) {
+    delay(delayMillis);
+  }
+}
+
+void _copy_soundAlarmMelody(_SoundAlarmParam& soundAlarmParam) {
   //_Melody& melody = _Melodies[melodyIdx];
   Melody& melody = *(Melody*) soundAlarmParam.alarmParams;
   while (!soundAlarmParam.checkStopCallback()) {
@@ -167,7 +182,7 @@ void _soundAlarmMelody(_SoundAlarmParam& soundAlarmParam) {
 
 
 
-#if defined(ES8311_PA) // ES8311  
+#if defined(ES8311_PA)   
 #include "snds/star_wars_music.h"
 #include "melody_helpers.h"
 bool _copyStarWars30Data(bool (*checkStopCallback)()) {
@@ -192,12 +207,12 @@ bool _copyStarWars30Data(bool (*checkStopCallback)()) {
   return true;
 }
 void _copyAlarmToneData(bool (*checkStopCallback)(), void* alarmParams, void (*soundAlarmFunc)(_SoundAlarmParam&)) {
-  AudioInfo audioInfo(44100, 2, 16);
-  SineWaveGenerator<int16_t> audioSineWave(32000);
-  GeneratedSoundStream<int16_t> audioSound(audioSineWave);
-  I2SCodecStream audioOut(audioBoard);
-  StreamCopy audioCopier(audioOut, audioSound);
-  _ES311SoundBeepParams es8311Params = {audioSineWave, audioCopier};
+  _AUDIO_DECL_ AudioInfo audioInfo(44100, 2, 16);
+  _AUDIO_DECL_ SineWaveGenerator<int16_t> audioSineWave(32000);
+  _AUDIO_DECL_ GeneratedSoundStream<int16_t> audioSound(audioSineWave);
+  _AUDIO_DECL_ I2SCodecStream audioOut(audioBoard);
+  _AUDIO_DECL_ StreamCopy audioCopier(audioOut, audioSound);
+  _AUDIO_DECL_ _ES311SoundBeepParams es8311Params = {audioSineWave, audioCopier};
   auto config = audioOut.defaultConfig();
   config.copyFrom(audioInfo);
   audioOut.begin(config);
@@ -210,14 +225,14 @@ bool _copyAlarmMelodyData(bool (*checkStopCallback)(), int melodyIdx) {
   if (melodyIdx < 0 || melodyIdx >= NumMelodies) {
     return false;
   }
-  _copyAlarmToneData(checkStopCallback, &Melodies[melodyIdx], _soundAlarmMelody);
+  _copyAlarmToneData(checkStopCallback, &Melodies[melodyIdx], _copy_soundAlarmMelody);
   return true;
   //_soundAlarmMelody(checkStopCallback, _Melodies[melodyIdx], _SoundAlarmToneType::Buzzer, nullptr);
   //return true;
 
 }
 void _copyAlarmBeepData(bool (*checkStopCallback)()) {
-  _copyAlarmToneData(checkStopCallback, nullptr, _soundAlarmBeep);
+  _copyAlarmToneData(checkStopCallback, nullptr, _copy_soundAlarmBeep);
   // AudioInfo audioInfo(44100, 2, 16);
   // SineWaveGenerator<int16_t> audioSineWave(32000);
   // GeneratedSoundStream<int16_t> audioSound(audioSineWave);
@@ -248,7 +263,7 @@ void _copyAlarmBeepData(bool (*checkStopCallback)()) {
 
 void _soundAlarmBeepWithBuzzer(bool (*checkStopCallback)()) {
   _SoundAlarmParam soundAlarmParam = _SoundAlarmParam{checkStopCallback, nullptr, _SoundAlarmToneType::Buzzer, nullptr};
-  _soundAlarmBeep(soundAlarmParam);
+  _copy_soundAlarmBeep(soundAlarmParam);
   // while (!checkStopCallback()) {
   //   _soundAlarmBeep(soundAlarmParam);
   //   // long usedMillis = _soundAlarmBeep(_SoundAlarmToneType::Buzzer, nullptr);
@@ -265,7 +280,7 @@ bool _soundAlarmMelodyWithBuzzer(bool (*checkStopCallback)(), int melodyIdx) {
     return false;
   }
   _SoundAlarmParam soundAlarmParam = _SoundAlarmParam{checkStopCallback, &Melodies[melodyIdx], _SoundAlarmToneType::Buzzer, nullptr};
-  _soundAlarmMelody(soundAlarmParam);
+  _copy_soundAlarmMelody(soundAlarmParam);
   return true;
   // if (melodyIdx < 0 || melodyIdx >= _NumMelodies) {
   //   return false;
@@ -308,8 +323,12 @@ bool _soundAlarmMelodyWithBuzzer(bool (*checkStopCallback)(), int melodyIdx) {
 }
 
 
-long playAlarmBeepWithBuzzer() {
-  return _playAlarmBeep(_SoundAlarmToneType::Buzzer, nullptr);
+void playAlarmBeep() {
+#if defined(ES8311_PA) // ES8311
+  _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep);
+#else  
+  _playAlarmBeep(_SoundAlarmToneType::Buzzer, nullptr);
+#endif
 }
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
@@ -362,6 +381,10 @@ void soundSetup() {
   // cfg.i2s.fmt = I2S_NORMAL;
   // cfg.i2s.mode = MODE_SLAVE;
   audioBoard.begin(cfg); 
+
+  if (true) {
+    playAlarmBeep();
+  }
 #elif defined(BUZZER_PIN)
   pinMode(BUZZER_PIN, OUTPUT);
 #endif

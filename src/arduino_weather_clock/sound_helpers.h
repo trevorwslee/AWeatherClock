@@ -16,7 +16,7 @@ void playTone(int freq, int duration);
 void copyStarWars30Data(bool (*checkStopCallback)());
 #endif
 
-long playAlarmBeepWithBuzzer();
+void playAlarmBeep();
 void soundAlarm(bool (*checkStopCallback)(), AlarmPreferredType preferType = AlarmPreferredType::Beeps, int param = -1);
 
 
