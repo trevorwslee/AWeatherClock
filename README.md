@@ -182,7 +182,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 
 |  |  |
 |--|--|
-|With the `Alarms` tab, you can set up the alarms of `AWeatherClock`|<div style='width:500px;height:800px'>![](imgs/tab_alarm_00.jpg)</div>|
+|With the `Alarms` tab, you can set up the alarms of `AWeatherClock`|<div style='width:500px;height:800px'>![](imgs/tab_alarms_00.jpg)</div>|
 
 * The `🕰️` icon next to an alarm indicates that the alarm is ON; below that icon, the time of the alarm is shown, like `00:00`
 * You can select any one of the alarms to edit. The details of the alarm being edited are shown on the right-side

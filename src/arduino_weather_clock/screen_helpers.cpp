@@ -103,6 +103,7 @@ void screenSetup() {
   spi.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
   tft.begin();
   tft.setRotation(1);
+  tft.invertDisplay(true);
 #elif defined(FOR_TWATCH)  
   TTGOClass *ttgo = TTGOClass::getWatch();
   ttgo->begin();

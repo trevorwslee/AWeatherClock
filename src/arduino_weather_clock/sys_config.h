@@ -125,13 +125,24 @@ const uint32_t EEPROM_HEADER = 20250505;
 #elif defined(FOR_TWATCH)
   #define TFT_X_OFF   0
 #elif defined(FOR_ESP32_LCD)  
-  #define TFT_BL    21
-  #define TFT_CS    15
-  #define TFT_DC    2
-  #define TFT_SCLK  14
-  #define TFT_MOSI  13
-  #define TFT_MISO  12
+  #define TFT_BL      21
+  #define TFT_CS      15
+  #define TFT_DC      2
+  #define TFT_SCLK    14
+  #define TFT_MOSI    13
+  #define TFT_MISO    -1
   #define TFT_X_OFF   40
+  // #define XPT2046_CS    33
+  // #define XPT2046_CLK   25
+  // #define XPT2046_MOSI  32
+  // #define XPT2046_MISO  39
+  // #define XPT2046_CS        33
+  // #define XPT2046_CLK       25
+  // #define XPT2046_DIN       32
+  // #define XPT2046_DOUT      39
+  // #define XPT2046_CS    33
+  // #define XPT2046_IRQ   36  
+  #define BUTTON_PIN  0    // boot
 #elif defined(FOR_ESP32_S3_EYE)
   #define TFT_CS      44
   #define TFT_DC      43
@@ -175,7 +186,7 @@ const uint32_t EEPROM_HEADER = 20250505;
 #define TFT_HEIGHT  240
 
 
-#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA))
+#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA)) && !defined(FOR_ESP_SPARKBOT)
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 

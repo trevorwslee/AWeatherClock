@@ -23,6 +23,26 @@
 #elif defined(GT911_TP_SCL)  
   #include "TAMC_GT911.h"
   TAMC_GT911 touchpad = TAMC_GT911(GT911_TP_SDA, GT911_TP_SCL, GT911_TP_INT, GT911_TP_RST, GT911_TP_WIDTH, GT911_TP_HEIGHT);
+#elif defined(XPT2046_MOSI)
+  #include <XPT2046_Bitbang.h>
+  XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+  //#include <XPT2046_Touchscreen.h>
+  //XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
+  // #include <TFT_Touch.h>
+  // TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
+#elif defined(XPT2046_IRQ)
+  // #include <XPT2046_Bitbang.h>
+  // XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+  #include <XPT2046_Touchscreen.h>
+  XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
+  //#include <TFT_Touch.h>
+  // TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
+#elif defined(XPT2046_CS)
+  // #include <XPT2046_Bitbang.h>
+  // XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+  //#include <XPT2046_Touchscreen.h>
+  #include <TFT_Touch.h>
+  TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
 #elif defined(FOR_TWATCH)
   #include <LilyGoWatch.h>
   //#define KEEP_PRESSED_MILLIS 1000
@@ -98,7 +118,7 @@ void  _triggered() {
     _lastTriggerMillis = millis();
   #endif  
   unsigned long canDiffMillis = millis() - _canLastTriggerMillis;
-  if (true) {
+  if (false) {
     Serial.printf("=== triggered ... %lu ... canDiffMillis=%lu\n", millis(), canDiffMillis);
   }
   if (_triggeredState != TS_NONE) {
@@ -186,6 +206,25 @@ void triggerSetup() {
 #elif defined(GT911_TP_SCL)  
   touchpad.begin(GT911_ADDR1);  // sometimes, need to use the backup GT911_ADDR2
   touchpad.setRotation(ROTATION_NORMAL);
+#elif defined(XPT2046_MOSI)
+  touchscreen.begin();
+  //ts.begin(SPI);
+  //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
+  // touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
+  // touch.setRotation(1);
+  // ts.begin();
+  // ts.setRotation(1);
+#elif defined(XPT2046_IRQ)
+  //ts.begin(SPI);
+  //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
+  // touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
+  // touch.setRotation(1);
+  ts.begin();
+  ts.setRotation(1);
+#elif defined(XPT2046_CS)
+  //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
+  touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
+  touch.setRotation(1);
 #endif
 }
 
@@ -264,6 +303,55 @@ void triggerLoop() {
     }
     _triggered();
   }
+#elif defined(XPT2046_MOSI)
+  TouchPoint touch = touchscreen.getTouch();
+  // Display touches that have a pressure value (Z)
+  if (touch.zRaw != 0) {
+    Serial.print("Touch at X: ");
+    Serial.print(touch.x);
+    Serial.print(", Y: ");
+    Serial.println(touch.y);
+  }
+#elif defined(XPT2046_IRQ)
+  // if (touch.Pressed()) // Note this function updates coordinates stored within library variables
+  // {
+  //   // Read the current X and Y axis as co-ordinates at the last touch time
+  //   // The values were captured when Pressed() was called!
+  //   int X_Coord = touch.X();
+  //   int Y_Coord = touch.Y();
+
+  //   Serial.print(X_Coord); Serial.print(","); Serial.println(Y_Coord);
+  // }
+  if (ts.touched()) {
+    TS_Point p = ts.getPoint();
+    Serial.print("Pressure = ");
+    Serial.print(p.z);
+    Serial.print(", x = ");
+    Serial.print(p.x);
+    Serial.print(", y = ");
+    Serial.print(p.y);
+    Serial.println();
+  }  
+#elif defined(XPT2046_CS)
+  if (touch.Pressed()) // Note this function updates coordinates stored within library variables
+  {
+    // Read the current X and Y axis as co-ordinates at the last touch time
+    // The values were captured when Pressed() was called!
+    int X_Coord = touch.X();
+    int Y_Coord = touch.Y();
+
+    Serial.print(X_Coord); Serial.print(","); Serial.println(Y_Coord);
+  }
+  // if (ts.touched()) {
+  //   TS_Point p = ts.getPoint();
+  //   Serial.print("Pressure = ");
+  //   Serial.print(p.z);
+  //   Serial.print(", x = ");
+  //   Serial.print(p.x);
+  //   Serial.print(", y = ");
+  //   Serial.print(p.y);
+  //   Serial.println();
+ //}  
 #elif defined(FOR_TWATCH)
   TTGOClass *ttgo = TTGOClass::getWatch();
   int16_t x, y;
