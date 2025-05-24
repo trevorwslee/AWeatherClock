@@ -1,12 +1,19 @@
 #ifndef DD_TAB_HELPERS_H
 #define DD_TAB_HELPERS_H
 
+#include "../sys_config.h"
 #include "dumbdisplay.h"
 
 #define PF_TAB_LEFT  (0 + 1) 
 #define PF_TAB_TOP   (10 + 3)
-#define PF_TAB_WIDTH (100 - 2 * 1)
-#define PF_TAB_HEIGHT (90 - 2 * 3)
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+  #define PF_TAB_WIDTH (100 - 2 * 1)
+  #define PF_TAB_HEIGHT (120 - 2 * 3)
+#else
+  #define PF_TAB_WIDTH (100 - 2 * 1)
+  #define PF_TAB_HEIGHT (90 - 2 * 3)
+#endif
 
 
 extern DumbDisplay dumbdisplay;

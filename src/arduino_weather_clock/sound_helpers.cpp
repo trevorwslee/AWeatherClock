@@ -394,8 +394,7 @@ void soundSetup() {
   audioBoard.begin(cfg); 
 
   if (true) {
-    _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep, 40);
-    //playAlarmBeep();
+    _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep, 35);
   }
 #elif defined(BUZZER_PIN)
   pinMode(BUZZER_PIN, OUTPUT);

@@ -210,8 +210,8 @@ const uint32_t EEPROM_HEADER = 20250505;
 #endif
 
 // TODO: working on CAN_SET_VOLUME
-// #if defined(ES8311_PA)  
-//   #define CAN_SET_VOLUME
-// #endif
+#if defined(ES8311_PA)  
+  #define CAN_SET_VOLUME
+#endif
 
 #endif

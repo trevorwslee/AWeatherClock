@@ -8,7 +8,8 @@
 
 #define READ_BACK_WRITTEN_EEPROM_VALUES
 
-const uint8_t EEPROM_VERSION = 1;
+//const uint8_t EEPROM_VERSION = 1;
+const uint8_t EEPROM_VERSION = 2;  // since 2025-05-24
 
 #define O_V0_EEPROM_SETTINGS_SIZE            (4 + 32)
 #define O_V0_EACH_ALARM_NEEDED_EEPROM_SIZE   8
@@ -28,8 +29,18 @@ const uint8_t EEPROM_VERSION = 1;
 #define V0_EEPROM_ALARMS_START             V0_EEPROM_SETTINGS_START + V0_EEPROM_SETTINGS_SIZE
 #define V0_EEPROM_ALARM_0_START            (V0_EEPROM_ALARM_HEADER_SIZE + V0_EEPROM_ALARMS_START)
 
+#define V1_EEPROM_HEADER_SIZE              4
+#define V1_EEPROM_SETTINGS_SIZE            32
+#define V1_EACH_ALARM_NEEDED_EEPROM_SIZE   10
+#define V1_EEPROM_ALARM_HEADER_SIZE        4
+#define V1_ALARMS_NEEDED_EEPROM_SIZE       (V1_EEPROM_ALARM_HEADER_SIZE + NUM_ALARMS * V1_EACH_ALARM_NEEDED_EEPROM_SIZE)
+#define V1_EEPROM_TOTAL_SIZE               (V1_EEPROM_HEADER_SIZE + V1_EEPROM_SETTINGS_SIZE + V1_ALARMS_NEEDED_EEPROM_SIZE)
+#define V1_EEPROM_SETTINGS_START           V1_EEPROM_HEADER_SIZE
+#define V1_EEPROM_ALARMS_START             V1_EEPROM_SETTINGS_START + V1_EEPROM_SETTINGS_SIZE
+#define V1_EEPROM_ALARM_0_START            (V1_EEPROM_ALARM_HEADER_SIZE + V1_EEPROM_ALARMS_START)
+
 #define VC_EEPROM_HEADER_SIZE              4
-#define VC_EEPROM_SETTINGS_SIZE            32
+#define VC_EEPROM_SETTINGS_SIZE            40
 #define VC_EACH_ALARM_NEEDED_EEPROM_SIZE   10
 #define VC_EEPROM_ALARM_HEADER_SIZE        4
 #define VC_ALARMS_NEEDED_EEPROM_SIZE       (VC_EEPROM_ALARM_HEADER_SIZE + NUM_ALARMS * VC_EACH_ALARM_NEEDED_EEPROM_SIZE)
@@ -38,15 +49,6 @@ const uint8_t EEPROM_VERSION = 1;
 #define VC_EEPROM_ALARMS_START             VC_EEPROM_SETTINGS_START + VC_EEPROM_SETTINGS_SIZE
 #define VC_EEPROM_ALARM_0_START            (VC_EEPROM_ALARM_HEADER_SIZE + VC_EEPROM_ALARMS_START)
 
-// #define VC_EEPROM_HEADER_SIZE              4
-// #define VC_EEPROM_SETTINGS_SIZE            35
-// #define VC_EACH_ALARM_NEEDED_EEPROM_SIZE   9
-// #define VC_EEPROM_ALARM_HEADER_SIZE        4
-// #define VC_ALARMS_NEEDED_EEPROM_SIZE       (VC_EEPROM_ALARM_HEADER_SIZE + NUM_ALARMS * VC_EACH_ALARM_NEEDED_EEPROM_SIZE)
-// #define VC_EEPROM_TOTAL_SIZE               (VC_EEPROM_HEADER_SIZE + VC_EEPROM_SETTINGS_SIZE + VC_ALARMS_NEEDED_EEPROM_SIZE)
-// #define VC_EEPROM_SETTINGS_START           VC_EEPROM_HEADER_SIZE
-// #define VC_EEPROM_ALARMS_START             VC_EEPROM_SETTINGS_START + VC_EEPROM_SETTINGS_SIZE
-// #define VC_EEPROM_ALARM_0_START            (VC_EEPROM_ALARM_HEADER_SIZE + VC_EEPROM_ALARMS_START)
 
 #define EEPROM_TOTAL_SIZE               VC_EEPROM_TOTAL_SIZE
 #define EEPROM_SETTINGS_SIZE            VC_EEPROM_SETTINGS_SIZE
@@ -59,30 +61,38 @@ const uint8_t EEPROM_VERSION = 1;
 int _get_read_settings_start(uint8_t version) {
   if (version == 0) {
     return V0_EEPROM_SETTINGS_START;
-  } else {
-    return VC_EEPROM_SETTINGS_START;
   }
+  if (version == 1) {
+    return V1_EEPROM_SETTINGS_START;
+  }
+  return VC_EEPROM_SETTINGS_START;
 }
 int _get_read_alarms_start(uint8_t version) {
   if (version == 0) {
     return V0_EEPROM_ALARMS_START;
-  } else {
-    return VC_EEPROM_ALARMS_START;
   }
+  if (version == 1) {
+    return V1_EEPROM_ALARMS_START;
+  }
+  return VC_EEPROM_ALARMS_START;
 }
 int _get_read_alarm_0_strat(uint8_t version) {
   if (version == 0) {
     return V0_EEPROM_ALARM_0_START;
-  } else {
-    return VC_EEPROM_ALARM_0_START;
   }
+  if (version == 1) {
+    return V1_EEPROM_ALARM_0_START;
+  }
+  return VC_EEPROM_ALARM_0_START;
 }
 int _get_read_each_alarm_needed_size(uint8_t version) {
   if (version == 0) {
     return V0_EACH_ALARM_NEEDED_EEPROM_SIZE;
-  } else {
-    return VC_EACH_ALARM_NEEDED_EEPROM_SIZE;
   }
+  if (version == 1) {
+    return V1_EACH_ALARM_NEEDED_EEPROM_SIZE;
+  }
+  return VC_EACH_ALARM_NEEDED_EEPROM_SIZE;
 }
 
 
@@ -102,6 +112,7 @@ void _readGlobalSettings(uint8_t version) {
   // . internationalTimeFormat
   // . showTimeOnSlide
   // . knownLocation
+  // . audioVolume
   int address = _get_read_settings_start(version);//EEPROM_SETTINGS_START;
   EEPROM.get(address, timeZoneInSecs);  address += sizeof(timeZoneInSecs);
   EEPROM.get(address, syncWeatherLocationWithGPS);  address += sizeof(syncWeatherLocationWithGPS);
@@ -111,6 +122,9 @@ void _readGlobalSettings(uint8_t version) {
   EEPROM.get(address, internationalTimeFormat);  address += sizeof(internationalTimeFormat);
   EEPROM.get(address, showTimeOnSlide);  address += sizeof(showTimeOnSlide);
   EEPROM.get(address, knownLocation);  address += sizeof(knownLocation);
+  if (version >= 2) {
+    EEPROM.get(address, audioVolume);  address += sizeof(audioVolume);
+  }
   int size = address - _get_read_settings_start(version);//EEPROM_SETTINGS_START;
   Serial.println("EEPROM read setting: total settings size " + String(size) + " vs allocated: " + String(EEPROM_SETTINGS_SIZE));
   Serial.println("- timeZoneInSecs = " + String(timeZoneInSecs));
@@ -121,6 +135,7 @@ void _readGlobalSettings(uint8_t version) {
   Serial.println("- internationalTimeFormat = " + String(internationalTimeFormat));
   Serial.println("- showTimeOnSlide = " + String(showTimeOnSlide));
   Serial.println("- knownLocation = lat:" + String(knownLocation.latitude) + " / long:" + String(knownLocation.longitude) + " / version:" + String(knownLocation.version));
+  Serial.println("- audioVolume = " + String(audioVolume));
 }
 // void _readAlarm(int alarmIdx) {
 // } 
@@ -171,6 +186,7 @@ void _writeGlobalSettings(const char* reason) {
   EEPROM.put(address, showTimeOnSlide); address += sizeof(showTimeOnSlide);
   KnowLocation lastKnownLocation = knownLocation;
   EEPROM.put(address, lastKnownLocation); address += sizeof(lastKnownLocation);
+  EEPROM.put(address, audioVolume); address += sizeof(audioVolume);
   EEPROM.commit();
   Serial.print("EEPROM [");
   Serial.print(reason);

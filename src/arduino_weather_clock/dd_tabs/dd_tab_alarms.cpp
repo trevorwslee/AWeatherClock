@@ -280,10 +280,31 @@ void dd_alarms_setup(bool recreateLayers) {
 #endif
 
 #if defined(CAN_SET_VOLUME)
-    volumeSlider = dumbdisplay.createJoystickLayer(100, "bt", 0.5);
+    volumeSlider = dumbdisplay.createJoystickLayer(100, "lr", 0.6);
     volumeSlider->valueRange(1, 100);
     volumeSlider->snappy(true);
     volumeSlider->showValue(true, "white");
+
+    LcdDDLayerHandle volumeLabelHandle = dumbdisplay.createLcdLayerHandle(2, 1);
+    LcdDDLayer volumeLabel(volumeLabelHandle);
+    volumeLabel.border(1, "blue", "hair");
+    if (false) {
+      volumeLabel.writeCenteredLine("🔊");
+    } else {
+      // animate text on volumeLabel
+      for (int i = 0; i < 3; i++) {
+        String text;
+        switch (i) {
+          case 0: text = "🔈"; break;
+          case 1: text = "🔉"; break;
+          case 2: text = "🔊"; break;
+        }
+        volumeLabel.writeCenteredLine(text);    
+        volumeLabel.exportAsBackgroundImage(false);
+      }
+      volumeLabel.clear();
+      volumeLabel.animateBackgroundImage(2);
+    }
 #endif
 
     autoPinConfig = DDAutoPinConfig('H', 8)
@@ -313,10 +334,17 @@ void dd_alarms_setup(bool recreateLayers) {
           .endPaddedGroup()
         .endPaddedGroup()
       .endGroup()
-#if defined(CAN_SET_VOLUME)
-      .addLayer(volumeSlider)
-#endif
     .build();
+
+#if defined(CAN_SET_VOLUME)
+    autoPinConfig = DDAutoPinConfig('V')
+      .addAutoPinConfig(autoPinConfig)
+      .beginGroup('H')
+        .addLayer(volumeLabel)
+        .addLayer(volumeSlider)
+      .endGroup()
+      .build();
+#endif
   }
 
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");

@@ -24,6 +24,12 @@ WeatherInfo* currWeatherInfo = nullptr;
 
 KnowLocation knownLocation;
 
+#if defined(ES8311_VOLUME)
+  int audioVolume = ES8311_VOLUME;
+#else
+  int audioVolume = -1;
+#endif
+
 
 void onGlobalSettingsChanged(const char* reason) {
   eeprompt_saveGlobalSettings(reason);

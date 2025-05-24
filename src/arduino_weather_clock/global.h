@@ -166,6 +166,8 @@ extern bool forceRefreshWeather;
 
 extern KnowLocation knownLocation;
 
+extern int audioVolume;
+
 
 void onGlobalSettingsChanged(const char* reason);
 
