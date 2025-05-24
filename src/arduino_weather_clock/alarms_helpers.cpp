@@ -328,10 +328,6 @@ bool alarmsLoop() {
       }
 #else
       playAlarmBeep();
-      // for (int i = 0; i < _NumBeeps; i++) {
-      //   _Beep& beep = _Beeps[i];
-      //   playTone(beep.freq, beep.durationMillis);
-      // }
 #endif      
     }
 #if defined(AUTO_ACK_ALARM_MINUTES) 

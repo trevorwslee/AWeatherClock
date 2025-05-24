@@ -3,6 +3,8 @@
 #include "arduino_weather_clock/sys_config.h"
 #include "arduino_weather_clock/alarms_helpers.h"
 #include <arduino_weather_clock/melody_helpers.h>
+#include <arduino_weather_clock/sound_helpers.h>
+#include <arduino_weather_clock/global.h>
 
 
 #define ALARM_COUNT 5
@@ -34,7 +36,8 @@ namespace {
 #endif
 
 #if defined(CAN_SET_VOLUME)
-  JoystickDDLayer *volumeSlider;
+  JoystickDDLayer *audioVolumeSlider;
+  SelectionDDLayer* audioButton;
 #endif
 
   String autoPinConfig;
@@ -213,6 +216,17 @@ namespace {
     return true;
   }
 
+#if defined(CAN_SET_VOLUME)
+  void syncAudioVolume() {
+    int volume = audioVolume;
+    if (volume < 0) {
+      volume = 0;
+    } else if (volume > 100) {
+      volume = 100;
+    }
+    audioVolumeSlider->moveToPos(volume, 0);
+  }
+#endif
 }
 
 
@@ -280,16 +294,19 @@ void dd_alarms_setup(bool recreateLayers) {
 #endif
 
 #if defined(CAN_SET_VOLUME)
-    volumeSlider = dumbdisplay.createJoystickLayer(100, "lr", 0.6);
-    volumeSlider->valueRange(1, 100);
-    volumeSlider->snappy(true);
-    volumeSlider->showValue(true, "white");
+    audioVolumeSlider = dumbdisplay.createJoystickLayer(100, "lr", 0.6);
+    audioVolumeSlider->valueRange(0, 100);
+    audioVolumeSlider->snappy(true);
+    audioVolumeSlider->showValue(true, "white");
 
-    LcdDDLayerHandle volumeLabelHandle = dumbdisplay.createLcdLayerHandle(2, 1);
-    LcdDDLayer volumeLabel(volumeLabelHandle);
-    volumeLabel.border(1, "blue", "hair");
+    // LcdDDLayerHandle volumeLabelHandle = dumbdisplay.createLcdLayerHandle(2, 1);
+    // LcdDDLayer volumeLabel(volumeLabelHandle);
+    // volumeLabel.border(1, "blue", "hair");
+    audioButton = dumbdisplay.createSelectionLayer(4, 1);
+    audioButton->selected(true);
+    audioButton->highlightBorder(true, "darkblue");
     if (false) {
-      volumeLabel.writeCenteredLine("🔊");
+      audioButton->textCentered("🔊");
     } else {
       // animate text on volumeLabel
       for (int i = 0; i < 3; i++) {
@@ -299,11 +316,11 @@ void dd_alarms_setup(bool recreateLayers) {
           case 1: text = "🔉"; break;
           case 2: text = "🔊"; break;
         }
-        volumeLabel.writeCenteredLine(text);    
-        volumeLabel.exportAsBackgroundImage(false);
+        audioButton->textCentered(text);    
+        audioButton->exportAsBackgroundImage(false);
       }
-      volumeLabel.clear();
-      volumeLabel.animateBackgroundImage(2);
+      audioButton->clear();
+      audioButton->animateBackgroundImage(2);
     }
 #endif
 
@@ -340,19 +357,37 @@ void dd_alarms_setup(bool recreateLayers) {
     autoPinConfig = DDAutoPinConfig('V')
       .addAutoPinConfig(autoPinConfig)
       .beginGroup('H')
-        .addLayer(volumeLabel)
-        .addLayer(volumeSlider)
+        .addLayer(audioButton)
+        .addLayer(audioVolumeSlider)
       .endGroup()
       .build();
 #endif
   }
 
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");
+#if defined(CAN_SET_VOLUME)
+  syncAudioVolume();
+#endif
   selectEditingAlarm(0, true);
   currEditingAlarmDirty = false;
 }
 
 bool dd_alarms_loop() {
+#if defined(CAN_SET_VOLUME)
+  if (audioButton->getFeedback() != nullptr) {
+      playAlarmBeep();
+  }
+  const DDFeedback* audioVolumeFeedback = audioVolumeSlider->getFeedback();
+  if (audioVolumeFeedback != nullptr) {
+    int audioVolumeSetTo = audioVolumeFeedback->x;
+    if (audioVolumeSetTo >= 0 && audioVolumeSetTo <= 100) {
+      //Serial.println("***** set audio volume: " + String(audioVolumeSetTo));
+      audioVolume = audioVolumeSetTo;
+      playAlarmBeep();
+      onGlobalSettingsChanged("audioVolume");
+    }
+  }
+#endif
   const DDFeedback* alarmSelectionFeedback = editAlarmSelection->getFeedback();
   const DDFeedback* onOffSelectionFeedback = onRepeatedSelection->getFeedback();
   const DDFeedback* weekDaySelectionFeedback = weekDaySelection->getFeedback();

@@ -1,4 +1,5 @@
 #include "config.h"
+#include "global.h"
 #include "sound_helpers.h"
 #include "melody_helpers.h"
 
@@ -105,9 +106,9 @@ void _playTone(int freq, int duration, _SoundAlarmToneType type, void* params) {
     es8311Params->audioSineWave.setFrequency(freq);
     int volume = es8311Params->volume;
     if (volume == -1) {
-  #if defined(ES8311_VOLUME)    
-      volume = ES8311_VOLUME;
-  #endif
+      if (audioVolume != -1) {
+        volume = audioVolume;
+      }
     }
     if (volume != -1) {
       audioBoard.setVolume(volume);
@@ -195,6 +196,7 @@ void _copy_soundAlarmMelody(_SoundAlarmParam& soundAlarmParam) {
 #if defined(ES8311_PA)   
 #include "snds/star_wars_music.h"
 #include "melody_helpers.h"
+#include "global.h"
 bool _copyStarWars30Data(bool (*checkStopCallback)()) {
   AudioInfo info(22050, 1, 16);
   while (!checkStopCallback()) {
@@ -205,9 +207,9 @@ bool _copyStarWars30Data(bool (*checkStopCallback)()) {
     auto config = out.defaultConfig();
     config.copyFrom(info);
     out.begin(config);
-  #if defined(ES8311_VOLUME)    
-    audioBoard.setVolume(ES8311_VOLUME);
-  #endif  
+    if (audioVolume != -1) {
+      audioBoard.setVolume(audioVolume);
+    }
     copier.begin();
     while (!checkStopCallback() && copier.copy()) {
     }
@@ -369,6 +371,10 @@ void soundAlarm(bool (*checkStopCallback)(), AlarmPreferredType preferType, int 
 #endif  
 
 
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+#endif
+
+
 
 
 void soundSetup() {
@@ -392,6 +398,12 @@ void soundSetup() {
   // cfg.i2s.fmt = I2S_NORMAL;
   // cfg.i2s.mode = MODE_SLAVE;
   audioBoard.begin(cfg); 
+
+  int audioBoardVolume = audioBoard.getVolume();
+  if (audioVolume == -1) {
+    audioVolume = audioBoardVolume;
+  }
+  Serial.println("*** initial audioBoard volume: " + String(audioBoardVolume) + " ... global audioVolume: " + String(audioVolume));
 
   if (true) {
     _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep, 35);
