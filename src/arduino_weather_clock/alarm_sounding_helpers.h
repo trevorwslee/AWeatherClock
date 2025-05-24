@@ -5,6 +5,9 @@
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 
+bool isSoundingAlarmSound();
+void setSoundingAlarmSoundIdx(int alarmSoundIdx);
+
 void alarmSoundingSetup();
 
 #endif

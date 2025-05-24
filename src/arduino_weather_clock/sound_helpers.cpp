@@ -214,11 +214,16 @@ bool _copyStarWars30Data(bool (*checkStopCallback)(void*), void* callbackParam) 
     auto config = out.defaultConfig();
     config.copyFrom(info);
     out.begin(config);
-    if (audioVolume != -1) {
-      audioBoard.setVolume(audioVolume);
-    }
     copier.begin();
-    while (!checkStopCallback(callbackParam) && copier.copy()) {
+    while (!checkStopCallback(callbackParam)) {
+      if (audioVolume != -1) {
+        audioBoard.setVolume(audioVolume);
+      }
+      if (!copier.copy()) {
+        // no more data to copy
+        break;
+      }
+      delay(10); // give some time for the copier to copy
     }
     out.end();
     delay(1000);

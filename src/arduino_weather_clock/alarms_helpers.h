@@ -41,9 +41,12 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx);
 
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
-bool isSoundingAdhocMelody();
-bool startAdhocSoundMelody(int melodyIdx);
-void stopAdhocSoundMelody();
+// bool isSoundingAdhocMelody();
+// bool startAdhocSoundMelody(int melodyIdx);
+// void stopAdhocSoundMelody();
+void adhocStartAlarmSound(int alarmSoundIdx);
+bool isSoundingAlarm();
+void stopAlarmSound();
 #endif
 
 void alarmsSetup();

@@ -227,16 +227,16 @@ namespace {
     audioVolumeSlider->moveToPos(volume, 0);
   }
   void toggleAdhocSoundingMelody() {
-    if (isSoundingAdhocMelody()) {
-      stopAdhocSoundMelody();
+    if (isSoundingAlarm()) {
+      stopAlarmSound();
       audioButton->selected(false);
     } else {
-      startAdhocSoundMelody(0);
+      adhocStartAlarmSound(3);
       audioButton->selected(true);
     }    
   }
   void ensureAdhocSoundingMelody(bool ensureStarted = true) {
-    bool isSounding = isSoundingAdhocMelody();
+    bool isSounding = isSoundingAlarm();
     bool toggle = ensureStarted ? !isSounding : isSounding; 
     if (toggle) {
       toggleAdhocSoundingMelody();
