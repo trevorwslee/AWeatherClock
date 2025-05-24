@@ -37,6 +37,7 @@ bool _lastDisplayInverted = false;
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 volatile  bool _alarmSoundingWithTask = false;
+volatile bool _adhocSoundingMelody = false;
 #endif
 
 
@@ -109,6 +110,64 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 #endif  
   return "Beep"; 
 }
+
+
+
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+void _adhocSoundMelody(void* param) {
+  int melodyIdx = (int) param;
+  AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
+  soundAlarm([](){ return !_adhocSoundingMelody; }, AlarmPreferredType::Melody, melodyIdx);
+  vTaskDelete(NULL);
+}
+void _soundAlarmTaskFunc(void* param) {
+  if (_dueAlarmIdx != -1) {
+    Alarm& alarm = _alarms[_dueAlarmIdx];
+    AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
+    int alarmParam = -1;
+    if (alarm.alarmSoundIdx > 0) {
+      int melodyIdx = alarm.alarmSoundIdx - 1;
+      if (melodyIdx >= 0 && melodyIdx < NumMelodies) {
+        preferAlarmType = AlarmPreferredType::Melody;
+        alarmParam = melodyIdx;
+      }
+  #if defined(ES8311_PA)
+      else {
+        preferAlarmType = AlarmPreferredType::Music;
+        alarmParam = 0;
+      }
+  #endif  
+    }
+    soundAlarm([](){ return !_alarmSoundingWithTask; }, preferAlarmType, alarmParam);
+  }
+  vTaskDelete(NULL);
+}
+bool startAdhocSoundMelody(int melodyIdx) {
+  if (_adhocSoundingMelody || _alarmSoundingWithTask) {
+    return false;
+  }
+  _adhocSoundingMelody = true;
+  xTaskCreate(
+      _adhocSoundMelody,         
+      "AdhocSoundMelodyTask",    
+      10240,                
+      (void*) melodyIdx,                 
+      configMAX_PRIORITIES - 1,
+      NULL                  
+  );
+  return true;
+}
+void stopAdhocSoundMelody() {
+  _adhocSoundingMelody = false;
+}
+bool isSoundingAdhocMelody() {
+  return _adhocSoundingMelody;
+}
+#endif
+
+
+
 
 void alarmsSetup() {
 }
@@ -270,45 +329,21 @@ void _forceSetDebugAlarms() {
 //   return usedMillis;
 // }
 
-#if defined(USE_TASK_FOR_ALARM_SOUND)
-void _soundAlarmTaskFunc(void* param) {
-  if (_dueAlarmIdx != -1) {
-    Alarm& alarm = _alarms[_dueAlarmIdx];
-    AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
-    int alarmParam = -1;
-    if (alarm.alarmSoundIdx > 0) {
-      int melodyIdx = alarm.alarmSoundIdx - 1;
-      if (melodyIdx >= 0 && melodyIdx < NumMelodies) {
-        preferAlarmType = AlarmPreferredType::Melody;
-        alarmParam = melodyIdx;
-      }
-  #if defined(ES8311_PA)
-      else {
-        preferAlarmType = AlarmPreferredType::Music;
-        alarmParam = 0;
-      }
-  #endif  
-    }
-    soundAlarm([](){ return !_alarmSoundingWithTask; }, preferAlarmType, alarmParam);
-  }
-  vTaskDelete(NULL);
-}
-#endif
-
 bool alarmsLoop() {
   if (millis() < BLACK_OUT_MILLIS) {
     return false;
   }
   if (_alarmDueMillis != -1) {
     if (_lastAlarmBeepMillis == -1 || (millis() - _lastAlarmBeepMillis) > 1000) {
+      if (_adhocSoundingMelody) {
+        return false;  // will not sound alarm if adhoc sounding melody is in progress
+      }
       _lastAlarmBeepMillis = millis();
       //Serial.println("!!! alarm beep !!!");
-
 #if defined(FOR_TWATCH)  
       TTGOClass *ttgo = TTGOClass::getWatch();
       ttgo->shake();
 #endif
-
       void* displayHandle = getDisplayHandle();
       _lastDisplayInverted = !_lastDisplayInverted;
       invertDisplay(displayHandle, _lastDisplayInverted);

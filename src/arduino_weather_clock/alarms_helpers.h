@@ -2,7 +2,7 @@
 #define ALARMS_HELPERS_H
 
 #include <Arduino.h>
-
+#include "sys_config.h"
 
 struct AlarmV0 {
   bool enabled = false;
@@ -39,6 +39,12 @@ void ackAlarmDue();
 int getAlarmSoundSelectCount();
 const char* getAlarmSoundSelectText(int alarmSoundIdx);
 
+
+#if defined(USE_TASK_FOR_ALARM_SOUND)
+bool isSoundingAdhocMelody();
+bool startAdhocSoundMelody(int melodyIdx);
+void stopAdhocSoundMelody();
+#endif
 
 void alarmsSetup();
 bool alarmsLoop();

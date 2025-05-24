@@ -226,6 +226,22 @@ namespace {
     }
     audioVolumeSlider->moveToPos(volume, 0);
   }
+  void toggleAdhocSoundingMelody() {
+    if (isSoundingAdhocMelody()) {
+      stopAdhocSoundMelody();
+      audioButton->selected(false);
+    } else {
+      startAdhocSoundMelody(0);
+      audioButton->selected(true);
+    }    
+  }
+  void ensureAdhocSoundingMelody(bool ensureStarted = true) {
+    bool isSounding = isSoundingAdhocMelody();
+    bool toggle = ensureStarted ? !isSounding : isSounding; 
+    if (toggle) {
+      toggleAdhocSoundingMelody();
+    }
+  }
 #endif
 }
 
@@ -303,7 +319,7 @@ void dd_alarms_setup(bool recreateLayers) {
     // LcdDDLayer volumeLabel(volumeLabelHandle);
     // volumeLabel.border(1, "blue", "hair");
     audioButton = dumbdisplay.createSelectionLayer(4, 1);
-    audioButton->selected(true);
+    //audioButton->selected(true);
     audioButton->highlightBorder(true, "darkblue");
     if (false) {
       audioButton->textCentered("🔊");
@@ -375,15 +391,16 @@ void dd_alarms_setup(bool recreateLayers) {
 bool dd_alarms_loop() {
 #if defined(CAN_SET_VOLUME)
   if (audioButton->getFeedback() != nullptr) {
-      playAlarmBeep();
+    toggleAdhocSoundingMelody();
   }
   const DDFeedback* audioVolumeFeedback = audioVolumeSlider->getFeedback();
   if (audioVolumeFeedback != nullptr) {
     int audioVolumeSetTo = audioVolumeFeedback->x;
     if (audioVolumeSetTo >= 0 && audioVolumeSetTo <= 100) {
       //Serial.println("***** set audio volume: " + String(audioVolumeSetTo));
+      ensureAdhocSoundingMelody();
       audioVolume = audioVolumeSetTo;
-      playAlarmBeep();
+      //playAlarmBeep();
       onGlobalSettingsChanged("audioVolume");
     }
   }
@@ -456,8 +473,10 @@ bool dd_alarms_loop() {
 }
 
 void dd_alarms_done() {
-
   Serial.println("* DD 'alarm tab' done");
+#if defined(CAN_SET_VOLUME)
+  ensureAdhocSoundingMelody(false);
+#endif
   ensureCurrEditingAlarmSet();
 }
 
