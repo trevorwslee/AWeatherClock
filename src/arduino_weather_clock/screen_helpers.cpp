@@ -36,6 +36,14 @@
   #include "Adafruit_ILI9341.h"
   SPIClass spi(HSPI);
   Adafruit_ILI9341 tft(&spi, TFT_DC, TFT_CS);
+#elif defined(FOR_ESP32)
+  #include <Adafruit_GFX.h>    // Core graphics library
+  #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
+  #include <SPI.h>             // Arduino SPI library
+  SPIClass spi = SPIClass(HSPI);
+  Adafruit_ST7789 tft(&spi, TFT_CS, TFT_DC, TFT_RST);
+  // #include <Adafruit_ST7789.h>
+  // Adafruit_ST7789 tft(TFT_CS, TFT_DC, TFT_RST);
 #elif defined(FOR_ESP32_S3_EYE)
   #include <Adafruit_GFX.h>    // Core graphics library
   #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
@@ -55,9 +63,9 @@ void screenSetup() {
 #if defined(TFT_BL)
   pinMode(TFT_BL, OUTPUT);
   #if defined(TFT_BL_LOW)
-  digitalWrite(TFT_BL, 0);  // light it up (LOW)
+    digitalWrite(TFT_BL, 0);  // light it up (LOW)
   #else
-  digitalWrite(TFT_BL, 1);  // light it up
+    digitalWrite(TFT_BL, 1);  // light it up
   #endif
 #endif
 
@@ -109,6 +117,15 @@ void screenSetup() {
   ttgo->begin();
   ttgo->openBL();
   ttgo->motor_begin();
+#elif defined(FOR_ESP32)  
+  spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
+  tft.setSPISpeed(40000000);
+  tft.init(240, 240, SPI_MODE0);
+  tft.setRotation(3);
+  // tft.init(240, 240, SPI_MODE0);
+  // tft.invertDisplay(false);
+  // tft.setRotation(1);
+  // tft.setSPISpeed(40000000);
 #elif defined(FOR_ESP32_S3_EYE)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.setSPISpeed(40000000);

@@ -145,6 +145,18 @@ const uint32_t EEPROM_HEADER = 20250505;
   // #define XPT2046_CS    33
   // #define XPT2046_IRQ   36  
   #define BUTTON_PIN  0    // boot
+#elif defined(FOR_ESP32)
+  #define TFT_BL      18 /*blk*/       
+  #define TFT_CS      15
+  #define TFT_DC      2
+  #define TFT_SCLK    14 /*sck*/
+  #define TFT_MOSI    13 /*sdi*/
+  #define TFT_RST     4
+  #define TFT_X_OFF   0
+  //#define BUTTON_PIN  34    
+  #define BUTTON_PIN  26    
+  //#define BUTTON_PULLDOWN    
+  #define BUZZER_PIN  23
 #elif defined(FOR_ESP32_S3_EYE)
   #define TFT_CS      44
   #define TFT_DC      43

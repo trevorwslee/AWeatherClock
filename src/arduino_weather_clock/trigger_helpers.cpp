@@ -160,9 +160,13 @@ void setTriggeredState(TriggeredState triggeredState) {
 
 void triggerSetup() {
 #ifdef BUTTON_PIN
-  pinMode(BUTTON_PIN, INPUT_PULLUP);  // assume INPUT_PULLUP
-  //attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), _triggered, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), _triggered, FALLING);
+  #if defined(BUTTON_PULLDOWN)
+    pinMode(BUTTON_PIN, INPUT_PULLDOWN);
+    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), _triggered, FALLING);
+  #else
+    pinMode(BUTTON_PIN, INPUT_PULLUP);  // assume INPUT_PULLUP
+    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), _triggered, FALLING);
+  #endif
 #elif defined(TOUCH_PIN)
   //pinMode(TOUCH_PIN, INPUT_PULLDOWN);  // assume INPUT_PULLUP
   touchAttachInterrupt(TOUCH_PIN, _triggered, TOUCH_THRESHOLD);
