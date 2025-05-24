@@ -67,6 +67,7 @@ struct _SoundAlarmParam {
   struct _ES311SoundBeepParams {
     SineWaveGenerator<int16_t>& audioSineWave;
     StreamCopy& audioCopier;
+    int volume;
   };
 #endif
 
@@ -102,9 +103,18 @@ void _playTone(int freq, int duration, _SoundAlarmToneType type, void* params) {
     _ES311SoundBeepParams* es8311Params = (_ES311SoundBeepParams*) params;
     float cycleCount = duration / 5.5;  // around 180 cycles per second
     es8311Params->audioSineWave.setFrequency(freq);
+    int volume = es8311Params->volume;
+    if (volume == -1) {
   #if defined(ES8311_VOLUME)    
-    audioBoard.setVolume(ES8311_VOLUME);
-  #endif    
+      volume = ES8311_VOLUME;
+  #endif
+    }
+    if (volume != -1) {
+      audioBoard.setVolume(volume);
+    }
+  // #if defined(ES8311_VOLUME)    
+  //   audioBoard.setVolume(ES8311_VOLUME);
+  // #endif    
     for (int i = 0; i < cycleCount; i++) {
       es8311Params->audioCopier.copy();
     }
@@ -206,13 +216,13 @@ bool _copyStarWars30Data(bool (*checkStopCallback)()) {
   }
   return true;
 }
-void _copyAlarmToneData(bool (*checkStopCallback)(), void* alarmParams, void (*soundAlarmFunc)(_SoundAlarmParam&)) {
+void _copyAlarmToneData(bool (*checkStopCallback)(), void* alarmParams, void (*soundAlarmFunc)(_SoundAlarmParam&), int volume = -1) {
   _AUDIO_DECL_ AudioInfo audioInfo(44100, 2, 16);
   _AUDIO_DECL_ SineWaveGenerator<int16_t> audioSineWave(32000);
   _AUDIO_DECL_ GeneratedSoundStream<int16_t> audioSound(audioSineWave);
   _AUDIO_DECL_ I2SCodecStream audioOut(audioBoard);
   _AUDIO_DECL_ StreamCopy audioCopier(audioOut, audioSound);
-  _AUDIO_DECL_ _ES311SoundBeepParams es8311Params = {audioSineWave, audioCopier};
+  _ES311SoundBeepParams es8311Params = {audioSineWave, audioCopier, volume};
   auto config = audioOut.defaultConfig();
   config.copyFrom(audioInfo);
   audioOut.begin(config);
@@ -231,8 +241,8 @@ bool _copyAlarmMelodyData(bool (*checkStopCallback)(), int melodyIdx) {
   //return true;
 
 }
-void _copyAlarmBeepData(bool (*checkStopCallback)()) {
-  _copyAlarmToneData(checkStopCallback, nullptr, _copy_soundAlarmBeep);
+void _copyAlarmBeepData(bool (*checkStopCallback)(), int volume = -1) {
+  _copyAlarmToneData(checkStopCallback, nullptr, _copy_soundAlarmBeep, volume);
   // AudioInfo audioInfo(44100, 2, 16);
   // SineWaveGenerator<int16_t> audioSineWave(32000);
   // GeneratedSoundStream<int16_t> audioSound(audioSineWave);
@@ -331,6 +341,7 @@ void playAlarmBeep() {
 #endif
 }
 
+
 #if defined(USE_TASK_FOR_ALARM_SOUND)
 void soundAlarm(bool (*checkStopCallback)(), AlarmPreferredType preferType, int param) {
   // to be called as a task
@@ -382,8 +393,9 @@ void soundSetup() {
   // cfg.i2s.mode = MODE_SLAVE;
   audioBoard.begin(cfg); 
 
-  if (true) {
-    playAlarmBeep();
+  if (false) {
+    _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep, 40);
+    //playAlarmBeep();
   }
 #elif defined(BUZZER_PIN)
   pinMode(BUZZER_PIN, OUTPUT);

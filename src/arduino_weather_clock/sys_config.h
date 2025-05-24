@@ -83,7 +83,6 @@ const uint32_t EEPROM_HEADER = 20250505;
   // #define TOUCH_THRESHOLD      512
   // #define MIN_TOUCH_VALUE      37000
   #define ES8311_PA             46 
-  //#define ES8311_I2C_PORT       0x30
   #define ES8311_I2C_SCL        5
   #define ES8311_I2C_SDA        4
   #define ES8311_I2S_PORT       35
@@ -93,7 +92,7 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_DOUT       42
   #define ES8311_I2S_DIN        40
   #define ES8311_VOLUME         60
-#elif defined(FOR_MUMA)
+#elif defined(FOR_MUMA) || defined(FOR_MUMA_NT)
   #define TFT_BL    42
   #define TFT_CS    5
   #define TFT_DC    47
@@ -102,12 +101,15 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define TFT_RST   38
   #define TFT_BL_LOW
   #define TFT_X_OFF  0
-  // #define CST_TP_BUS_NUM  0  // TODO: no touch hardware
-  // #define CST_TP_SCL      7
-  // #define CST_TP_SDA      11
-  // #define CST_TP_RST      6
-  // #define CST_TP_INT      12
-  #define BUTTON_PIN  0    // boot
+  #if defined(FOR_MUMA)  
+    #define CST_TP_BUS_NUM  1 
+    #define CST_TP_SCL      7
+    #define CST_TP_SDA      11
+    #define CST_TP_RST      6
+    #define CST_TP_INT      12
+  #else  
+    #define BUTTON_PIN  0    // boot
+  #endif
   // #define CST816S_SCL      7
   // #define CST816S_SDA      11
   // #define CST816S_RST      6
@@ -186,7 +188,7 @@ const uint32_t EEPROM_HEADER = 20250505;
 #define TFT_HEIGHT  240
 
 
-#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA)) && !defined(FOR_ESP_SPARKBOT)
+#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA))
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 

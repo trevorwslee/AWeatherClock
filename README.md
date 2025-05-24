@@ -101,6 +101,8 @@ if buzzer / speaker / audio module (ES8311 for ESP32) is installed, audible alar
   ``` 
 
 - Music [sample] `Star Wars` (for ESP32 with audio module ES8311) -- music played with [Arduino Audio Tools](https://github.com/pschatzmann/arduino-audio-tools), with data file `star_wars_music.h`, which is actually the same data file used by the [`streams-memory_raw-i2s` example](https://github.com/pschatzmann/arduino-audio-tools/tree/main/examples/examples-stream/streams-memory_raw-i2s) 
+
+
 # Out-of-the-Box Supported Hardware
 
 The sketch `arduino_weather_clock.ino` of this project is tailored for various compatible hardware that I can get hold of:
@@ -114,8 +116,9 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
 * PlatformIO env `ESP_SPARKBOT` -- ESP32 S3 [ESP-SparkBot](https://oshwlab.com/hawaii0707/esp-sparkbot)
   - it's right side is touchable, which is configured as a `BUTTON` for "trigger" input
   - it also has the `ES8311` audio codec module, which is used to generate alarm sound
-* PlatformIO env `MUMA` -- ESP32 S3 [Little MuMa (non-touch)](https://spotpear.cn/shop/ESP32-S3-AI-1.54-inch-LCD-Display-TouchScreen-N16R8-muma-DeepSeek.html)
-  - it's "boot" button on the back right side is configured as a `BUTTON` for "trigger" input
+* PlatformIO env `MUMA` (touch) / `MUMA_NT` (non-touch) -- ESP32 S3 [Little MuMa](https://spotpear.cn/shop/ESP32-S3-AI-1.54-inch-LCD-Display-TouchScreen-N16R8-muma-DeepSeek.html)
+  - for touch version (`MUMA`), it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input
+  - for non-touch version (`MUMA_NT`), it's "boot" button on the back right side is configured as a `BUTTON` for "trigger" input
   - it also has the `ES8311` audio codec module, which is used to generate alarm sound
 * Platformio env `PICOW_GP` -- a Raspberry Pi PicoW attached to a [gamepad-like LCD](https://spotpear.cn/wiki/Raspberry-Pi-Pico-RP2040-1.54inch-LCD-display-Screen-Game-ST7789.html)
   - the gamepad's "start" button is configured as a `BUTTON` for "trigger" input

@@ -24,7 +24,7 @@
   #include <SPI.h>             // Arduino SPI library
   SPIClass spi = SPIClass(FSPI);
   Adafruit_ST7789 tft(&spi, TFT_CS, TFT_DC, TFT_RST);
-#elif defined(FOR_MUMA)
+#elif defined(FOR_MUMA) || defined(FOR_MUMA_NT)
   #include <Adafruit_GFX.h>    // Core graphics library
   #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
   #include <SPI.h>             // Arduino SPI library
@@ -94,7 +94,7 @@ void screenSetup() {
   tft.setSPISpeed(40000000);
   tft.init(240, 240, SPI_MODE0);
   tft.setRotation(2);
-#elif defined(FOR_MUMA)
+#elif defined(FOR_MUMA) || defined(FOR_MUMA_NT)
   spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
   tft.setSPISpeed(40000000);
   tft.init(240, 240, SPI_MODE0);
