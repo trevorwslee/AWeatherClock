@@ -18,8 +18,11 @@
 #elif defined(FT_TP_SCL)
   #include <Wire.h>
   #include "FT6336U.h"
-  FT6336U touchpad(/*FT_TP_SDA, FT_TP_SCL, */FT_TP_RST, FT_TP_INT);
-  //volatile bool checkTouchpadStatus = false;
+  #if defined(ESP32)
+    FT6336U touchpad(FT_TP_SDA, FT_TP_SCL, FT_TP_RST, FT_TP_INT);
+  #else
+    FT6336U touchpad(/*FT_TP_SDA, FT_TP_SCL, */FT_TP_RST, FT_TP_INT);
+  #endif  
 #elif defined(GT911_TP_SCL)  
   #include "TAMC_GT911.h"
   TAMC_GT911 touchpad = TAMC_GT911(GT911_TP_SDA, GT911_TP_SCL, GT911_TP_INT, GT911_TP_RST, GT911_TP_WIDTH, GT911_TP_HEIGHT);
@@ -34,7 +37,8 @@
   // #include <XPT2046_Bitbang.h>
   // XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
   #include <XPT2046_Touchscreen.h>
-  XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
+  SPIClass ts_spi(HSPI);
+  XPT2046_Touchscreen ts(XPT2046_CS/*, XPT2046_IRQ*/);
   //#include <TFT_Touch.h>
   // TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
 #elif defined(XPT2046_CS)
@@ -203,8 +207,10 @@ void triggerSetup() {
   }
 #elif defined(FT_TP_SCL)
   //pinMode(FT_TP_INT, INPUT_PULLUP);
-  Wire.setSDA(FT_TP_SDA);  // FT6336U will use Wire
-  Wire.setSCL(FT_TP_SCL);
+  #if !defined(ESP32)
+    Wire.setSDA(FT_TP_SDA);  // FT6336U will use Wire
+    Wire.setSCL(FT_TP_SCL);
+  #endif  
   touchpad.begin();
   attachInterrupt(digitalPinToInterrupt(FT_TP_INT), _triggered, CHANGE);
 #elif defined(GT911_TP_SCL)  
@@ -219,15 +225,23 @@ void triggerSetup() {
   // ts.begin();
   // ts.setRotation(1);
 #elif defined(XPT2046_IRQ)
-  //ts.begin(SPI);
   //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
   // touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
   // touch.setRotation(1);
-  ts.begin();
+
+  // TODO: not working
+  #define TP_CLK   25
+  #define TP_MOSI  32
+  #define TP_MISO  39
+  ts_spi.setFrequency(2500000);
+  //ts_spi.begin(TP_CLK, 39/*TP_MISO*/, -1/*TP_MOSI*/, XPT2046_CS);
+  ts.begin(ts_spi);
+
+  //ts.begin();
   ts.setRotation(1);
 #elif defined(XPT2046_CS)
   //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
-  touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
+  //touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
   touch.setRotation(1);
 #endif
 }
@@ -310,7 +324,7 @@ void triggerLoop() {
 #elif defined(XPT2046_MOSI)
   TouchPoint touch = touchscreen.getTouch();
   // Display touches that have a pressure value (Z)
-  if (touch.zRaw != 0) {
+  if (touch.zRaw != 0 && (touch.x != 0 || touch.y != 0)) {
     Serial.print("Touch at X: ");
     Serial.print(touch.x);
     Serial.print(", Y: ");

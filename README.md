@@ -126,8 +126,12 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
   - a ST7789 2.8 inch 240x320 SPI TFT LCD module is used, with a FT6336U capacitive touch layer
   - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
   - a speaker is attached to it; the speaker is used to generate alarm sound 
-  - for more details, please refer to the later section [Customizations for New Hardware Example](#customizations-for-new-hardware-example)
-  
+  - for more details, please refer to the later section [Customizations for New Hardware PicoW Example](#customizations-for-new-hardware-picow-example)
+* PlatformIO env `ESP32` -- an ESP32 customized hardware 
+  - a ST7789V 1.3 inch 240x240 SPI TFT LCD module (ST7789) is used
+  - a button is attached to it, as `BUTTON` for "trigger" input 
+  - a speaker is attached to it; the speaker is used to generate alarm sound 
+  - for more details, please refer to the later section [Customizations for New Hardware ESP32 Example](#customizations-for-new-hardware-esp32-example)
 
 Notes:
 * How many slides can be stored in the MCU? Say,
@@ -506,7 +510,7 @@ However, there are much more pins for the ES8311 audio module, as in `ESP_SPARKB
 ```
 * `ES8311_VOLUME` sets the volume of the audio module; if you would like higher alarm volume, set `ES8311_VOLUME` to higher value like `80` 
 
-#  Customizations for New Hardware Example
+#  Customizations for New Hardware PicoW Example
 
 Take the above-mentioned `PICOW` as an example -- the Raspberry Pi PicoW wiring as mentioned in [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
 
@@ -560,7 +564,7 @@ build_flags =
   - [`TJpg_Decoder`](https://github.com/Bodmer/TJpg_Decoder) for decoding JPEG data (slides)
   - [`Arduino-FT6336U`](https://github.com/aselectroworks/Arduino-FT6336U) for the FT6336U touch layer 
   - [`ArduinoJson`](https://github.com/bblanchon/ArduinoJson) for parsing the JSON got from OpenWeather
-  - [`PNGdec`](https://github.com/bitbank2/PNGdec#1.1.0) for decoding the weather condition icon (PNG) retrieved from OpenWether
+  - [`PNGdec`](https://github.com/bitbank2/PNGdec) for decoding the weather condition icon (PNG) retrieved from OpenWether
   - [`Arduino-DumbDisplay`](https://github.com/trevorwslee/Arduino-DumbDisplay) for driving DumbDisplay Android app for the UI remotely rendered with your Android phone
 
 `sys_config.h`
@@ -598,7 +602,11 @@ build_flags =
 void screenSetup() {
 #if defined(TFT_BL)
   pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);  // light it up
+  #if defined(TFT_BL_LOW)
+    digitalWrite(TFT_BL, 0);  // light it up (LOW)
+  #else
+    digitalWrite(TFT_BL, 1);  // light it up
+  #endif
 #endif
   ...
 #elif defined(FOR_PICOW)  
@@ -617,7 +625,116 @@ void screenSetup() {
   - run the necessary code to setup the TFT LCD screen -- `tft` declared previously
 
 
-Have fun with it!
+#  Customizations for New Hardware ESP32 Example
+
+Take the above-mentioned `ESP32` as another example
+- A ST7789 1.3 inch 240x240 SPI TFT LCD module is used
+- A button is attached to it, which act as a `BUTTON` for "trigger" input -- one end of the button is connected to `GND` and the other end is connected to `GIPO26` 
+- A speaker is attached to it -- one end of the speaker is connected to `GND` and the other end is connected to `GIPO23`
+
+  |ESP32              |SPI TFT LCD |
+  |-------------------|------------|
+  | 3V3               | VCC        |
+  | GND               | GND        |
+  | GPIO18            | BL         |
+  | GPIO15            | CS         |
+  | GPIO2             | DC         |
+  | GPIO14            | SCLK       |
+  | GPIO13            | MOSI       |
+  | GPIO4             | RST        |
+  | GPIO26            | BUTTON     |
+  | GND               | BUTTON     |
+  | GPIO23            | SPEAKER    |
+  | GND               | SPEAKER    |
+
+`platformio.ini`
+```
+...
+[env:ESP32]
+platform = espressif32
+board = esp32dev
+framework = arduino
+;board_build.partitions = huge_app.csv
+;monitor_filters = esp32_exception_decoder
+lib_deps =
+    https://github.com/adafruit/Adafruit-ST7735-Library.git#1.11.0
+    https://github.com/adafruit/Adafruit-GFX-Library#1.12.1
+    https://github.com/Bodmer/TJpg_Decoder.git#V1.1.0 
+    https://github.com/bblanchon/ArduinoJson#v7.4.1
+    https://github.com/bitbank2/PNGdec#1.1.0
+    https://github.com/tzapu/WiFiManager#v2.0.17
+    https://github.com/trevorwslee/Arduino-DumbDisplay#v0.9.9-r51
+build_flags =
+    -D FOR_ESP32
+...    
+```
+* it appears that if using `earlephilhower` core in Windows, need to ensure long file name support ... ```git config --system core.longpaths true```
+* there are quite a few libraries needed:
+  - [`Adafruit-ST7735-Library`](https://github.com/adafruit/Adafruit-ST7735-Library) and
+    [`Adafruit-GFX-Library`](https://github.com/adafruit/Adafruit-GFX-Library) for the ST7789 1.3 inch 240x240 SPI TFT LCD screen
+  - [`TJpg_Decoder`](https://github.com/Bodmer/TJpg_Decoder) for decoding JPEG data (slides)
+  - [`ArduinoJson`](https://github.com/bblanchon/ArduinoJson) for parsing the JSON got from OpenWeather
+  - [`PNGdec`](https://github.com/bitbank2/PNGdec) for decoding the weather condition icon (PNG) retrieved from OpenWether
+  - [`WiFiManager`](https://github.com/tzapu/WiFiManager) for getting WiFi credential by setting up WiFi hotspot, when WiFi SSID / password not hard-coded
+  - [`Arduino-DumbDisplay`](https://github.com/trevorwslee/Arduino-DumbDisplay) for driving DumbDisplay Android app for the UI remotely rendered with your Android phone
+`sys_config.h`
+```
+...
+#elif defined(FOR_ESP32)
+  #define TFT_BL      18     
+  #define TFT_CS      15
+  #define TFT_DC      2
+  #define TFT_SCLK    14
+  #define TFT_MOSI    13
+  #define TFT_RST     4
+  #define TFT_X_OFF   0
+  #define BUTTON_PIN  26    
+  #define BUZZER_PIN  23
+...  
+```
+* `TFT_xxx` are the pin mappings of the ST7789 TFT LCD screen
+* `TFT_X_OFF` is set to 0 since the screen is 240 wide and therefore need no horizontal offset
+* `BUTTON_PIN` is the pin connected to one end of the button attached to the ESP32; the other end can connect to `GND` of the ESP32
+* `BUZZER_PIN` is the pin connected to one end of the speaker attached to the ESP32; the other end can connect to `GND` of the ESP32
+
+`screen_helpers.cpp`
+```
+...
+#elif defined(FOR_ESP32)
+  #include <Adafruit_GFX.h>
+  #include <Adafruit_ST7789.h>
+  #include <SPI.h>   
+  SPIClass spi = SPIClass(HSPI);
+  Adafruit_ST7789 tft(&spi, TFT_CS, TFT_DC, TFT_RST);
+...
+void screenSetup() {
+#if defined(TFT_BL)
+  pinMode(TFT_BL, OUTPUT);
+  #if defined(TFT_BL_LOW)
+    digitalWrite(TFT_BL, 0);  // light it up (LOW)
+  #else
+    digitalWrite(TFT_BL, 1);  // light it up
+  #endif
+#endif
+  ...
+#elif defined(FOR_ESP32)  
+  spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
+  tft.setSPISpeed(40000000);
+  tft.init(240, 240, SPI_MODE0);
+  tft.setRotation(3);
+  ...
+}
+...
+```
+* the first `defined(FOR_ESP32)`
+  - include the needed header file for the TFT LCD screen `<Adafruit_ST7789.h>`
+  - instantiate the global variable `tft` (as the TFT LCD screen object)
+* the second `defined(FOR_ESP32)`, which is inside the `void screenSetup()` block
+  - run the necessary code to setup the TFT LCD screen -- `tft` declared previously
+
+
+
+Have fun with `AWeatherClock`!
 
 
 # Enjoy!

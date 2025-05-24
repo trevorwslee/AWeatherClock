@@ -393,7 +393,7 @@ void soundSetup() {
   // cfg.i2s.mode = MODE_SLAVE;
   audioBoard.begin(cfg); 
 
-  if (false) {
+  if (true) {
     _copyAlarmToneData(nullptr, nullptr, _copy_playAlarmBeep, 40);
     //playAlarmBeep();
   }

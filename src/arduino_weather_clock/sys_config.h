@@ -5,7 +5,7 @@
 
 
 // the version of the sketch
-#define ARDUINO_WEATHER_CLOCK_VERSION "1.0"
+#define ARDUINO_WEATHER_CLOCK_VERSION "1.1"
 
 
 // comment out to DEBUG use of WIFI MANAGER for WiFi SSID / password
@@ -138,12 +138,17 @@ const uint32_t EEPROM_HEADER = 20250505;
   // #define XPT2046_CLK   25
   // #define XPT2046_MOSI  32
   // #define XPT2046_MISO  39
+  // #define XPT2046_CS       33
+  // #define XPT2046_IRQ      36  
   // #define XPT2046_CS        33
   // #define XPT2046_CLK       25
   // #define XPT2046_DIN       32
   // #define XPT2046_DOUT      39
-  // #define XPT2046_CS    33
-  // #define XPT2046_IRQ   36  
+  // #define CST_TP_BUS_NUM  0 
+  // #define CST_TP_SCL      32
+  // #define CST_TP_SDA      33
+  // #define CST_TP_RST      25
+  // #define CST_TP_INT      36
   #define BUTTON_PIN  0    // boot
 #elif defined(FOR_ESP32)
   #define TFT_BL      18 /*blk*/       
@@ -200,7 +205,7 @@ const uint32_t EEPROM_HEADER = 20250505;
 #define TFT_HEIGHT  240
 
 
-#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA))
+#if defined(ESP32) && (defined(BUZZER_PIN) || defined(ES8311_PA)) && !defined(FOR_ESP_SPARKBOT)
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 
