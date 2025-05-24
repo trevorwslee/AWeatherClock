@@ -118,7 +118,7 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 void _adhocSoundMelody(void* param) {
   int melodyIdx = (int) param;
   AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
-  soundAlarm([](){ return !_adhocSoundingMelody; }, AlarmPreferredType::Melody, melodyIdx);
+  soundAlarm([](void*){ return !_adhocSoundingMelody; }, nullptr, AlarmPreferredType::Melody, melodyIdx);
   vTaskDelete(NULL);
 }
 void _soundAlarmTaskFunc(void* param) {
@@ -139,7 +139,7 @@ void _soundAlarmTaskFunc(void* param) {
       }
   #endif  
     }
-    soundAlarm([](){ return !_alarmSoundingWithTask; }, preferAlarmType, alarmParam);
+    soundAlarm([](void*){ return !_alarmSoundingWithTask; }, nullptr, preferAlarmType, alarmParam);
   }
   vTaskDelete(NULL);
 }

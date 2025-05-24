@@ -17,7 +17,7 @@ void copyStarWars30Data(bool (*checkStopCallback)());
 #endif
 
 void playAlarmBeep();
-void soundAlarm(bool (*checkStopCallback)(), AlarmPreferredType preferType = AlarmPreferredType::Beeps, int param = -1);
+void soundAlarm(bool (*checkStopCallback)(void*), void* callbackParam, AlarmPreferredType preferType = AlarmPreferredType::Beeps, int param = -1);
 
 
 void soundSetup();
