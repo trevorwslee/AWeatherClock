@@ -72,35 +72,10 @@ You may want to refer to [Blink Test With Virtual Display, DumbDisplay](https://
 for a bit more details about  [DumbDisplay Arduino library](https://github.com/trevorwslee/Arduino-DumbDisplay) and [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay).
 
 Concerning "sounding" of alarm. Actually `AWeatherClock` not only will flash the screen when alarm is due,
-if buzzer / speaker / audio module (ES8311 for ESP32) is installed, audible alarm-specific sound will be generated
-- `Beep` sound -- with buzzer / speaker / audio module 
-- Melody `Amazing Grace` (for ESP32) -- similar to what described by the YouTube video [Raspberry Pi Pico playing song melody tones, with DumbDisplay control and keyboard input](https://www.youtube.com/watch?v=l-HrsJXIwBY)
+if buzzer / speaker / audio module (ES8311 for ESP32) is installed, audible alarm-specific sound will be generated.
+Please refer to [Alarm Sound](#alarm-sound) for a bit more details.
 
-- Melody `Birthday Song` (for ESP32) -- similar to above melody `Amazing Grace`, but musical notes generated with LLM
-  `happy_birthday_melody.h`  
-  ```
-  I asked LLM to generate this file's "happy birthday" melody.
 
-  Prompt:
-
-  At the end are the data structures for the melody "amazing grace". Can you figure out the data for the melody "happy birthday"?
-
-  IMPORTANT notes:
-  * Each musical note MUST be composed of exactly two characters, no more and no less.
-  * Hence, the data "nodenames" / "octaves" / "beats" for each musical note MUST be composed with two characters, and therefore might be padded with space " "
-  * For "nodenames" -- e.g "C " for C; "C#" for C sharp; and "Cb" for C flat
-  * For "octaves" -- e.g. "0 " for octave 0; "1 " for octave 1; "2 " for octave 2; note that it can be negative like "-1" (still TWO chars), for lower octaves
-
-  -----------------
-
-  const char* amazing_grace_nodenames = "G C E C E D C A G G C E C E D G E G E G E C G A C C A G G C E C E D C ";
-  const char* amazing_grace_octaves   = "0 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 0 0 0 1 1 1 1 1 1 ";
-  const char* amazing_grace_beats     = "2 4 1 1 4 2 4 2 4 2 4 1 1 4 2 8 2 1 1 1 1 4 2 4 1 1 1 4 2 4 1 1 4 2 8 ";
-
-  const int amazing_grace_beatSpeed = 300;
-  ``` 
-
-- Music [sample] `Star Wars` (for ESP32 with audio module ES8311) -- music played with [Arduino Audio Tools](https://github.com/pschatzmann/arduino-audio-tools), with data file `star_wars_music.h`, which is actually the same data file used by the [`streams-memory_raw-i2s` example](https://github.com/pschatzmann/arduino-audio-tools/tree/main/examples/examples-stream/streams-memory_raw-i2s) 
 
 
 # Out-of-the-Box Supported Hardware
@@ -220,6 +195,51 @@ With the `Slides` tab, you can add / remove photos for the idle slideshow
   - In any case, the uploaded photo will be considered "unsaved"; you press `💾` to add the photo to the slideshow
   - Also notice for photo that might not fit `AWeatherClock` screen, a [crop UI](https://github.com/Yalantis/uCrop) will be invoked for you to crop the photo in order to fit the screen 
   
+
+# Alarm Sound
+
+As mentioned previously, in addition to flashing of the screen, in case of audible alarm sound can be generated with buzzer / speaker / audio module (ES8311 for ESP32), alarm-specific selection will be available
+- `Beep` sound -- with buzzer / speaker / audio module 
+- Melody `Amazing Grace` (for ESP32) -- similar to what described by the YouTube video [Raspberry Pi Pico playing song melody tones, with DumbDisplay control and keyboard input](https://www.youtube.com/watch?v=l-HrsJXIwBY)
+
+- Melody `Birthday Song` (for ESP32) -- similar to above melody `Amazing Grace`, but musical notes generated with LLM
+  `happy_birthday_melody.h`  
+  ```
+  I asked LLM to generate this file's "happy birthday" melody.
+
+  Prompt:
+
+  At the end are the data structures for the melody "amazing grace". Can you figure out the data for the melody "happy birthday"?
+
+  IMPORTANT notes:
+  * Each musical note MUST be composed of exactly two characters, no more and no less.
+  * Hence, the data "nodenames" / "octaves" / "beats" for each musical note MUST be composed with two characters, and therefore might be padded with space " "
+  * For "nodenames" -- e.g "C " for C; "C#" for C sharp; and "Cb" for C flat
+  * For "octaves" -- e.g. "0 " for octave 0; "1 " for octave 1; "2 " for octave 2; note that it can be negative like "-1" (still TWO chars), for lower octaves
+
+  -----------------
+
+  const char* amazing_grace_nodenames = "G C E C E D C A G G C E C E D G E G E G E C G A C C A G G C E C E D C ";
+  const char* amazing_grace_octaves   = "0 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 0 0 0 1 1 1 1 1 1 ";
+  const char* amazing_grace_beats     = "2 4 1 1 4 2 4 2 4 2 4 1 1 4 2 8 2 1 1 1 1 4 2 4 1 1 1 4 2 4 1 1 4 2 8 ";
+
+  const int amazing_grace_beatSpeed = 300;
+  ``` 
+
+- Music [sample] `Star Wars` (for ESP32 with audio module ES8311) -- music played with [Arduino Audio Tools](https://github.com/pschatzmann/arduino-audio-tools), with data file `star_wars_music.h`, which is actually the same data file used by the [`streams-memory_raw-i2s` example](https://github.com/pschatzmann/arduino-audio-tools/tree/main/examples/examples-stream/streams-memory_raw-i2s) 
+
+
+
+Note that this per-alarm sound selection is only available for ESP32 line of MCU. Moreover, if your hardware has the audio module ES8311, you have more
+|  |  |
+|--|--|
+|Again, with the `Alarms` tab, you can select the per-alarm sound to alert you when the alarm is due|<div style='width:500px;height:800px'>![](imgs/tab_alarms_sound.jpg)</div>|
+Notes:
+* The sound choice `Star Wars` is only available for the audio module ES8311
+* Additionally, slider next to `🔊` allows you to change the ES8311 audio module volume
+  
+
+
 
 # Basic Hardcoded Configurations -- `config.h`
 
