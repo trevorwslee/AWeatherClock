@@ -1,6 +1,6 @@
 #include "global.h"
 #include "eeprom_helpers.h"
-//#include "search.h"
+#include "sys_config.h"
 
 
 bool systemStartupSettingsInvalid = true;  // will be set properly in eeprom_initialization()
@@ -24,8 +24,8 @@ WeatherInfo* currWeatherInfo = nullptr;
 
 KnowLocation knownLocation;
 
-#if defined(ES8311_VOLUME)
-  int audioVolume = ES8311_VOLUME;
+#if defined(DEF_AUDIO_VOLUME)
+  int audioVolume = DEF_AUDIO_VOLUME;
 #else
   int audioVolume = -1;
 #endif

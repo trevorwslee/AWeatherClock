@@ -91,7 +91,7 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_WS         41
   #define ES8311_I2S_DOUT       42
   #define ES8311_I2S_DIN        40
-  #define ES8311_VOLUME         60
+  #define BOOTUP_BEEP_AUDIO_VOLUME 35
 #elif defined(FOR_MUMA) || defined(FOR_MUMA_NT)
   #define TFT_BL    42
   #define TFT_CS    5
@@ -123,7 +123,9 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_WS         45 
   #define ES8311_I2S_DOUT       8
   #define ES8311_I2S_DIN        10
-  #define ES8311_VOLUME         55
+  #define DEF_AUDIO_VOLUME         55
+  #define MIN_AUDIO_VOLUME         20
+  #define MAX_AUDIO_VOLUME         75
 #elif defined(FOR_TWATCH)
   #define TFT_X_OFF   0
 #elif defined(FOR_ESP32_LCD)  
@@ -188,7 +190,7 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define ES8311_I2S_WS   45
   #define ES8311_I2S_DOUT 15
   #define ES8311_I2S_DIN  16
-  #define ES8311_VOLUME   60
+  //#define DEF_AUDIO_VOLUME   60
   #define BUTTON_PIN  0    // boot
   // #define GT911_TP_SCL       18  // TODO: not working very well ... sometimes not working
   // #define GT911_TP_SDA       8

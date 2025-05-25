@@ -420,9 +420,9 @@ void soundSetup() {
   }
   Serial.println("*** initial audioBoard volume: " + String(audioBoardVolume) + " ... global audioVolume: " + String(audioVolume));
 
-  if (true) {
-    _copyAlarmToneData(nullptr, nullptr, nullptr, _copy_playAlarmBeep, 35);
-  }
+  #if defined(BOOTUP_BEEP_AUDIO_VOLUME)  
+    _copyAlarmToneData(nullptr, nullptr, nullptr, _copy_playAlarmBeep, BOOTUP_BEEP_AUDIO_VOLUME);
+  #endif
 #elif defined(BUZZER_PIN)
   pinMode(BUZZER_PIN, OUTPUT);
 #endif

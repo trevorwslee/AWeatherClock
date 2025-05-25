@@ -12,6 +12,16 @@
 #if defined(USE_TASK_FOR_ALARM_SOUND)
   #define SUPPORT_ALARM_SOUNDS
   #define SOUND_ALARM_FOR_MILLIS 3000
+  #if defined(MAX_AUDIO_VOLUME)
+    #define MAX_SET_VOLUME MAX_AUDIO_VOLUME
+  #else
+    #define MAX_SET_VOLUME 100
+  #endif
+  #if defined(MIN_AUDIO_VOLUME)
+    #define MIN_SET_VOLUME MIN_AUDIO_VOLUME
+  #else
+    #define MIN_SET_VOLUME 0
+  #endif
   // #define ALARM_SOUND_MELODY_START_IDX 1
   // #if defined(ES8311_PA)
   //   #define MUSIC_AS_ALARM_SOUND
@@ -492,12 +502,20 @@ bool dd_alarms_loop() {
   const DDFeedback* audioVolumeFeedback = audioVolumeSlider->getFeedback();
   if (audioVolumeFeedback != nullptr) {
     int audioVolumeSetTo = audioVolumeFeedback->x;
-    if (audioVolumeSetTo >= 0 && audioVolumeSetTo <= 100) {
+    if (audioVolumeSetTo < MIN_SET_VOLUME) {
+      audioVolumeSetTo = MIN_SET_VOLUME;
+    } else if (audioVolumeSetTo > MAX_SET_VOLUME) {
+      audioVolumeSetTo = MAX_SET_VOLUME;
+    }
+    if (audioVolume != audioVolumeSetTo) {
       //Serial.println("***** set audio volume: " + String(audioVolumeSetTo));
       ensureNSSoundAlarmSound();
       audioVolume = audioVolumeSetTo;
-      //playAlarmBeep();
       onGlobalSettingsChanged("audioVolume");
+    } else {
+      if (audioVolumeFeedback->x != audioVolume) {
+        syncAudioVolume();
+      }
     }
   }
 #endif

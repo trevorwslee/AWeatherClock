@@ -506,9 +506,9 @@ However, there are much more pins for the ES8311 audio module, as in `ESP_SPARKB
   #define ES8311_I2S_WS         41
   #define ES8311_I2S_DOUT       42
   #define ES8311_I2S_DIN        40
-  #define ES8311_VOLUME         60
+  #define DEF_AUDIO_VOLUME         60
 ```
-* `ES8311_VOLUME` sets the volume of the audio module; if you would like higher alarm volume, set `ES8311_VOLUME` to higher value like `80` 
+* `DEF_AUDIO_VOLUME` sets the default volume of the audio module; set it if you want something different from the audio module default 
 
 #  Customizations for New Hardware PicoW Example
 

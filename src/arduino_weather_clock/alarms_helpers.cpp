@@ -145,7 +145,7 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 //   }
 //   vTaskDelete(NULL);
 // }
-// bool startAdhocSoundMelody(int melodyIdx) {  // TODO: remove
+// bool startAdhocSoundMelody(int melodyIdx) {
 //   // if (_adhocSoundingMelody || _alarmSoundingWithTask) {
 //   //   return false;
 //   // }
@@ -160,10 +160,10 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 //   // );
 //   return true;
 // }
-// void stopAdhocSoundMelody() {  // TODO: remove
+// void stopAdhocSoundMelody() {
 //   //_adhocSoundingMelody = false;
 // }
-// bool isSoundingAdhocMelody() {  // TODO: remove
+// bool isSoundingAdhocMelody() {
 //   //return _adhocSoundingMelody;
 //   return true;
 // }
