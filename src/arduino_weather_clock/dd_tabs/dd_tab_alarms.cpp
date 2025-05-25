@@ -11,6 +11,7 @@
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
   #define SUPPORT_ALARM_SOUNDS
+  #define SOUND_ALARM_FOR_MILLIS 3000
   // #define ALARM_SOUND_MELODY_START_IDX 1
   // #if defined(ES8311_PA)
   //   #define MUSIC_AS_ALARM_SOUND
@@ -33,6 +34,7 @@ namespace {
 
 #if defined(SUPPORT_ALARM_SOUNDS)
   SelectionDDLayer* alarmSoundSelection;
+  long stopSoundAlarmMillis = -1;
 #endif
 
 #if defined(CAN_SET_VOLUME)
@@ -62,6 +64,58 @@ namespace {
     upDownButton->enableFeedback(":rpt500");
     return upDownButton;
   }
+
+#if defined(SUPPORT_ALARM_SOUNDS)
+  void startSoundAlarmSound(bool autoStop = true) {
+    Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
+    int alarmSoundIdx = currEditingAlarm.alarmSoundIdx;
+    adhocStartAlarmSound(alarmSoundIdx);
+    if (autoStop) {
+      stopSoundAlarmMillis = millis() + SOUND_ALARM_FOR_MILLIS;
+    } else {
+      stopSoundAlarmMillis = -1;
+    }
+    audioButton->selected(true);
+ }
+  void stopSoundAlarmSound() {
+      stopAlarmSound();
+      stopSoundAlarmMillis = -1;
+      audioButton->selected(false);
+  }
+#endif
+#if defined(CAN_SET_VOLUME)
+  void syncAudioVolume() {
+    int volume = audioVolume;
+    if (volume < 0) {
+      volume = 0;
+    } else if (volume > 100) {
+      volume = 100;
+    }
+    audioVolumeSlider->moveToPos(volume, 0);
+  }
+  void toggleNSSoundAlarmSound() {
+    if (isSoundingAlarm()) {
+      stopSoundAlarmSound();
+      //audioButton->selected(false);
+    } else {
+      startSoundAlarmSound(false);
+      //audioButton->selected(true);
+    }    
+  }
+  void ensureNSSoundAlarmSound(bool ensureStarted = true) {
+    bool isSounding = isSoundingAlarm();
+    if (isSounding) {
+      if (stopSoundAlarmMillis != -1) {
+        stopSoundAlarmMillis = millis() + SOUND_ALARM_FOR_MILLIS;
+      }
+    }
+    bool toggle = ensureStarted ? !isSounding : isSounding;
+    //Serial.println("########## ensureNSSoundAlarmSound: " + String(toggle) + ", isSounding: " + String(isSounding) + ", stopSoundAlarmMillis: " + String(stopSoundAlarmMillis));
+    if (toggle) {
+      toggleNSSoundAlarmSound();
+    }
+  }
+#endif
 
   void syncEditingAlarmSelection(int alarmIdx, bool forOnOff = true, bool forTime = true) {
     Alarm& alarm = editingAlarm[alarmIdx];
@@ -187,6 +241,7 @@ namespace {
     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
     currEditingAlarm.alarmSoundIdx = alarmSoundIdx;
     syncCurrEditingSoundSelection();
+    startSoundAlarmSound();
   }
 #endif
 
@@ -201,6 +256,9 @@ namespace {
     if (!forInit && alarmIdx == currEditingAlarmIdx) {
       return false;
     }
+#if defined(CAN_SET_VOLUME)
+    ensureNSSoundAlarmSound(false);
+#endif
     Alarm& alarm = editingAlarm[alarmIdx];
     editAlarmSelection->selected(true, 0, alarmIdx, true);
     if (!forInit) {
@@ -216,33 +274,56 @@ namespace {
     return true;
   }
 
-#if defined(CAN_SET_VOLUME)
-  void syncAudioVolume() {
-    int volume = audioVolume;
-    if (volume < 0) {
-      volume = 0;
-    } else if (volume > 100) {
-      volume = 100;
-    }
-    audioVolumeSlider->moveToPos(volume, 0);
-  }
-  void toggleAdhocSoundingMelody() {
-    if (isSoundingAlarm()) {
-      stopAlarmSound();
-      audioButton->selected(false);
-    } else {
-      adhocStartAlarmSound(3);
-      audioButton->selected(true);
-    }    
-  }
-  void ensureAdhocSoundingMelody(bool ensureStarted = true) {
-    bool isSounding = isSoundingAlarm();
-    bool toggle = ensureStarted ? !isSounding : isSounding; 
-    if (toggle) {
-      toggleAdhocSoundingMelody();
-    }
-  }
-#endif
+// #if defined(SUPPORT_ALARM_SOUNDS)
+//   void startSoundAlarmSound(bool autoStop = true) {
+//     Alarm& currEditingAlarm = editingAlarm[currEditingAlarmIdx];
+//     int alarmSoundIdx = currEditingAlarm.alarmSoundIdx;
+//     adhocStartAlarmSound(alarmSoundIdx);
+//     if (autoStop) {
+//       stopSoundAlarmMillis = millis() + SOUND_ALARM_FOR_MILLIS;
+//     } else {
+//       stopSoundAlarmMillis = -1;
+//     }
+//     audioButton->selected(true);
+//  }
+//   void stopSoundAlarmSound() {
+//       stopAlarmSound();
+//       stopSoundAlarmMillis = -1;
+//       audioButton->selected(false);
+
+//   }
+// #endif
+// #if defined(CAN_SET_VOLUME)
+//   void syncAudioVolume() {
+//     int volume = audioVolume;
+//     if (volume < 0) {
+//       volume = 0;
+//     } else if (volume > 100) {
+//       volume = 100;
+//     }
+//     audioVolumeSlider->moveToPos(volume, 0);
+//   }
+//   void toggleNSSoundAlarmSound() {
+//     if (isSoundingAlarm()) {
+//       stopSoundAlarmSound();
+//       //audioButton->selected(false);
+//     } else {
+//       startSoundAlarmSound(false);
+//       //audioButton->selected(true);
+//     }    
+//   }
+//   void ensureNSSoundAlarmSound(bool ensureStarted = true) {
+//     bool isSounding = isSoundingAlarm();
+//     if (isSounding) {
+//       if (stopSoundAlarmMillis != -1) {
+//         stopSoundAlarmMillis = millis() + SOUND_ALARM_FOR_MILLIS;
+//       }
+//     }
+//     if (ensureStarted ? !isSounding : isSounding) {
+//       toggleNSSoundAlarmSound();
+//     }
+//   }
+// #endif
 }
 
 
@@ -381,6 +462,9 @@ void dd_alarms_setup(bool recreateLayers) {
   }
 
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");
+#if defined(SUPPORT_ALARM_SOUNDS)
+  stopSoundAlarmMillis = -1;
+#endif
 #if defined(CAN_SET_VOLUME)
   syncAudioVolume();
 #endif
@@ -389,16 +473,24 @@ void dd_alarms_setup(bool recreateLayers) {
 }
 
 bool dd_alarms_loop() {
+#if defined(SUPPORT_ALARM_SOUNDS)
+  if (stopSoundAlarmMillis != -1) {
+    long diffMillis = millis() - stopSoundAlarmMillis;
+    if (diffMillis > 0) {
+      stopSoundAlarmSound();
+    }
+  }
+#endif
 #if defined(CAN_SET_VOLUME)
   if (audioButton->getFeedback() != nullptr) {
-    toggleAdhocSoundingMelody();
+    toggleNSSoundAlarmSound();
   }
   const DDFeedback* audioVolumeFeedback = audioVolumeSlider->getFeedback();
   if (audioVolumeFeedback != nullptr) {
     int audioVolumeSetTo = audioVolumeFeedback->x;
     if (audioVolumeSetTo >= 0 && audioVolumeSetTo <= 100) {
       //Serial.println("***** set audio volume: " + String(audioVolumeSetTo));
-      ensureAdhocSoundingMelody();
+      ensureNSSoundAlarmSound();
       audioVolume = audioVolumeSetTo;
       //playAlarmBeep();
       onGlobalSettingsChanged("audioVolume");
@@ -475,7 +567,7 @@ bool dd_alarms_loop() {
 void dd_alarms_done() {
   Serial.println("* DD 'alarm tab' done");
 #if defined(CAN_SET_VOLUME)
-  ensureAdhocSoundingMelody(false);
+  ensureNSSoundAlarmSound(false);
 #endif
   ensureCurrEditingAlarmSet();
 }

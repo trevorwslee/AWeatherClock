@@ -209,8 +209,7 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define USE_TASK_FOR_ALARM_SOUND
 #endif
 
-// TODO: working on CAN_SET_VOLUME
-#if defined(ES8311_PA)  
+#if defined(USE_TASK_FOR_ALARM_SOUND) && defined(ES8311_PA)  
   #define CAN_SET_VOLUME
 #endif
 

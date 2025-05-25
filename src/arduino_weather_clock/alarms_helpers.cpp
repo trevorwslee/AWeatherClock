@@ -168,12 +168,15 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 //   return true;
 // }
 void adhocStartAlarmSound(int alarmSoundIdx) {
+  Serial.print("!!! adhocStartAlarmSound ... alarmSoundIdx: ");
+  Serial.println(alarmSoundIdx);
   setSoundingAlarmSoundIdx(alarmSoundIdx);
 }
 bool isSoundingAlarm() {
   return isSoundingAlarmSound();
 }
 void stopAlarmSound() {
+  Serial.println("!!! stopAlarmSound");
   setSoundingAlarmSoundIdx(-1);
 }
 #endif
