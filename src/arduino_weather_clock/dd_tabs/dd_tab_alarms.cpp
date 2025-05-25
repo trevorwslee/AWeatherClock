@@ -75,12 +75,16 @@ namespace {
     } else {
       stopSoundAlarmMillis = -1;
     }
+  #if defined(CAN_SET_VOLUME)
     audioButton->selected(true);
- }
+  #endif  
+  }
   void stopSoundAlarmSound() {
-      stopAlarmSound();
-      stopSoundAlarmMillis = -1;
-      audioButton->selected(false);
+    stopAlarmSound();
+    stopSoundAlarmMillis = -1;
+  #if defined(CAN_SET_VOLUME)
+    audioButton->selected(false);
+  #endif    
   }
 #endif
 #if defined(CAN_SET_VOLUME)

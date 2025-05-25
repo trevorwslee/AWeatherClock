@@ -301,11 +301,13 @@ void _soundAlarmBeepWithBuzzer(bool (*checkStopCallback)(void*), void* callbackP
 
 
 bool _soundAlarmMelodyWithBuzzer(bool (*checkStopCallback)(void*), void* callbackParam, int melodyIdx) {
+  //Serial.println("### START _soundAlarmMelodyWithBuzzer: " + String(melodyIdx) + " (" + NumMelodies + ")");
   if (melodyIdx < 0 || melodyIdx >= NumMelodies) {
     return false;
   }
   _SoundAlarmParam soundAlarmParam = _SoundAlarmParam{checkStopCallback, callbackParam, _SoundAlarmToneInfo{_SoundAlarmToneType::Buzzer, nullptr}, &Melodies[melodyIdx]};
   _copy_soundAlarmMelody(soundAlarmParam);
+  //Serial.println("### END _soundAlarmMelodyWithBuzzer: " + String(melodyIdx) + " (" + NumMelodies + ")");
   return true;
   // if (melodyIdx < 0 || melodyIdx >= _NumMelodies) {
   //   return false;
@@ -361,24 +363,24 @@ void playAlarmBeep() {
 void soundAlarm(bool (*checkStopCallback)(void*), void* callbackParam, AlarmPreferredType preferType, int soundAlarmParam) {
   // to be called as a task
   #if defined(ES8311_PA) // ES8311  
-  if (preferType == AlarmPreferredType::Music) {
-    if (_copyStarWars30Data(checkStopCallback, callbackParam)) {
-      return;
+    if (preferType == AlarmPreferredType::Music) {
+      if (_copyStarWars30Data(checkStopCallback, callbackParam)) {
+        return;
+      }
     }
-  }
-  if (preferType == AlarmPreferredType::Melody) {
-    if (_copyAlarmMelodyData(checkStopCallback, callbackParam, soundAlarmParam)) {
-      return;
+    if (preferType == AlarmPreferredType::Melody) {
+      if (_copyAlarmMelodyData(checkStopCallback, callbackParam, soundAlarmParam)) {
+        return;
+      }
     }
-  }
-  _copyAlarmBeepData(checkStopCallback, callbackParam);
+    _copyAlarmBeepData(checkStopCallback, callbackParam);
   #else 
-  if (preferType == AlarmPreferredType::Melody) {
-    if (_soundAlarmMelodyWithBuzzer(checkStopCallback, param)) {
-      return;
+    if (preferType == AlarmPreferredType::Melody) {
+      if (_soundAlarmMelodyWithBuzzer(checkStopCallback, callbackParam, soundAlarmParam)) {
+        return;
+      }
     }
-  }
-  _soundAlarmBeepWithBuzzer(checkStopCallback);
+    _soundAlarmBeepWithBuzzer(checkStopCallback, callbackParam);
   #endif  
 }
 #endif  
