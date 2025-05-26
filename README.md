@@ -1,6 +1,6 @@
 ---
 title: A Weather Clock (with Alarms) for ESP32 / Raspberry Pi Pico Implemented with Arduino Framework
-description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi Pico W implemented with the Arduino framework
+description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi PicoW implemented with the Arduino framework
 tags: 'esp32, raspberrypipico, clock, arduino'
 cover_image: ./imgs/awc.jpg
 published: true
@@ -13,8 +13,7 @@ date: '2025-05-10T03:47:25Z'
 
 ![](imgs/awc.png)
 
-This [little microcontroller project](https://github.com/trevorwslee/AWeatherClock) `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock),
-and is implemented using the Arduino framework.
+This [little microcontroller project](https://github.com/trevorwslee/AWeatherClock) `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock), and is implemented using the Arduino framework.
 
 VSCode with PlatformIO extension is the primarily development environment for the project, in the similar fashion as described by the post -- [A Way to Run Arduino Sketch With VSCode PlatformIO Directly](https://www.instructables.com/A-Way-to-Run-Arduino-Sketch-With-VSCode-PlatformIO/) 
 
@@ -31,7 +30,7 @@ Nevertheless, the sketch of `AWeatherClock` should be adaptable to other hardwar
 The functions of `AWeatherClock` are:
 * Display of a digital clock synchronized with NTP
 * Display of the current weather info gathered from [OpenWeather](https://home.openweathermap.org/) with ***version 2.5*** APIs [for [free account](https://openweathermap.org/full-price#onecall)]
-* Alarms that can be repeated daily
+* Alarms that can be repeated daily, with selectable days [of the week] for the repeat
 * Idle slideshow of photos (JPEG images) uploaded to the MCU, much like the slideshow function as described by  [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
 
 `AWeatherClock` requires hardware with the following capabilities:
@@ -47,8 +46,7 @@ please, ***sign up*** for an `APP_ID` of their ***version 2.5*** APIs.
 You will need this `APP_ID` in order to setup for `AWeatherClock` -- please refer to the section [Basic Hardcoded Configurations](#basic-hardcoded-configurations----configh)
 
 Also, [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay)
-for Android phone is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone 
-with the help of DumbDisplay Android app
+for Android phone (or Android simulator etc) is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone with the help of DumbDisplay Android app
 * Photos to upload can be acquired in the following ways:
   - randomly from the Internet
     * [picsum.photos](https://picsum.photos/)
@@ -73,8 +71,7 @@ for a bit more details about  [DumbDisplay Arduino library](https://github.com/t
 
 Concerning "sounding" of alarm. Actually `AWeatherClock` not only will flash the screen when alarm is due,
 if buzzer / speaker / audio module (ES8311 for ESP32) is installed, audible alarm-specific sound will be generated.
-Please refer to [Alarm Sound](#alarm-sound) for a bit more details.
-
+Please refer to [Alarm Sound](#alarm-sound) for more details.
 
 
 
@@ -89,7 +86,7 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
 * PlatformIO env `TW3` -- ESP32 [LILYGO_WATCH_2020_V3](https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library)
   - it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input 
 * PlatformIO env `ESP_SPARKBOT` -- ESP32 S3 [ESP-SparkBot](https://oshwlab.com/hawaii0707/esp-sparkbot)
-  - it's right side is touchable, which is configured as a `BUTTON` for "trigger" input
+  - it's right side is touchable, which is configured as a `BUTTON` for "trigger" input, but from my experience, this "touch-pin" mechanism doesn't work very well 😞
   - it also has the `ES8311` audio codec module, which is used to generate alarm sound
 * PlatformIO env `MUMA` (touch) / `MUMA_NT` (non-touch) -- ESP32 S3 [Little MuMa](https://spotpear.cn/shop/ESP32-S3-AI-1.54-inch-LCD-Display-TouchScreen-N16R8-muma-DeepSeek.html)
   - for touch version (`MUMA`), it's touch screen is configured as a `TOUCH SCREEN` for "trigger" input
@@ -110,7 +107,7 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
 
 Notes:
 * How many slides can be stored in the MCU? Say,
-  - for `PYCLOCK` which is an ESP32-C3 with 4M of flash memory, I can store 25 to 30 photos to the flash of MCU; note that for `PYCLOCK`, it is configured to use `no_ota.csv` partitions in `platformio` like
+  - for `PYCLOCK` which is an ESP32-C3 with 4M of flash memory, I can store 25 to 30 photos to the flash of the MCU; note that for `PYCLOCK`, it is configured to use `no_ota.csv` partitions in `platformio.ini` like
     ```
     board_build.partitions = no_ota.csv
     ``` 
@@ -230,7 +227,7 @@ As mentioned previously, in addition to flashing of the screen, in case of audib
 
 
 
-Note that this per-alarm sound selection is only available for ESP32 line of MCU. Moreover, if your hardware has the audio module ES8311, you have more
+Note that this per-alarm sound selection is only available for ESP32 line of MCU. Moreover, if your hardware has the audio module ES8311, you will have more
 |  |  |
 |--|--|
 |Again, with the `Alarms` tab, you can select the per-alarm sound to alert you when the alarm is due|<div style='width:500px;height:800px'>![](imgs/tab_alarms_sound.jpg)</div>|
@@ -238,7 +235,6 @@ Notes:
 * The sound choice `Star Wars` is only available for the audio module ES8311
 * Additionally, slider next to `🔊` allows you to change the ES8311 audio module volume
   
-
 
 
 # Basic Hardcoded Configurations -- `config.h`

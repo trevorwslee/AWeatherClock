@@ -263,35 +263,6 @@ void triggerLoop() {
       _triggeredState = TS_IP;
     } 
   }
-// #elif defined(FT_TP_SCL)
-//   if (checkTouchpadStatus) {
-//     if (true) {
-//       Serial.print("FT6336U TD Status: ");
-//       Serial.println(touchpad.read_td_status());
-//       // Serial.print("FT6336U Touch Event/ID 1: (");
-//       // Serial.print(touchpad.read_touch1_event()); Serial.print(" / "); Serial.print(touchpad.read_touch1_id()); Serial.println(")");
-//       // Serial.print("FT6336U Touch Position 1: (");
-//       // Serial.print(touchpad.read_touch1_x()); Serial.print(" , "); Serial.print(touchpad.read_touch1_y()); Serial.println(")");
-//       // Serial.print("FT6336U Touch Weight/MISC 1: (");
-//       // Serial.print(touchpad.read_touch1_weight()); Serial.print(" / "); Serial.print(touchpad.read_touch1_misc()); Serial.println(")");
-//       // Serial.print("FT6336U Touch Event/ID 2: (");
-//       // Serial.print(touchpad.read_touch2_event()); Serial.print(" / "); Serial.print(touchpad.read_touch2_id()); Serial.println(")");
-//       // Serial.print("FT6336U Touch Position 2: (");
-//       // Serial.print(touchpad.read_touch2_x()); Serial.print(" , "); Serial.print(touchpad.read_touch2_y()); Serial.println(")");
-//       // Serial.print("FT6336U Touch Weight/MISC 2: (");
-//       // Serial.print(touchpad.read_touch2_weight()); Serial.print(" / "); Serial.print(touchpad.read_touch2_misc()); Serial.println(")");
-//     }
-//     uint8_t status = touchpad.read_td_status();
-//     if (status != 0) {
-//       _triggered();
-//     }
-//     // if (status == 0) {
-//     //   _showIP = false;
-//     // } else {
-//     //   _showIP = true;
-//     // }
-//     checkTouchpadStatus = false;
-//   }
 #elif defined(CST816S_SDA)
   if (touch.available()) {
     if (true) {
@@ -331,15 +302,6 @@ void triggerLoop() {
     Serial.println(touch.y);
   }
 #elif defined(XPT2046_IRQ)
-  // if (touch.Pressed()) // Note this function updates coordinates stored within library variables
-  // {
-  //   // Read the current X and Y axis as co-ordinates at the last touch time
-  //   // The values were captured when Pressed() was called!
-  //   int X_Coord = touch.X();
-  //   int Y_Coord = touch.Y();
-
-  //   Serial.print(X_Coord); Serial.print(","); Serial.println(Y_Coord);
-  // }
   if (ts.touched()) {
     TS_Point p = ts.getPoint();
     Serial.print("Pressure = ");
@@ -359,17 +321,7 @@ void triggerLoop() {
     int Y_Coord = touch.Y();
 
     Serial.print(X_Coord); Serial.print(","); Serial.println(Y_Coord);
-  }
-  // if (ts.touched()) {
-  //   TS_Point p = ts.getPoint();
-  //   Serial.print("Pressure = ");
-  //   Serial.print(p.z);
-  //   Serial.print(", x = ");
-  //   Serial.print(p.x);
-  //   Serial.print(", y = ");
-  //   Serial.print(p.y);
-  //   Serial.println();
- //}  
+  } 
 #elif defined(FOR_TWATCH)
   TTGOClass *ttgo = TTGOClass::getWatch();
   int16_t x, y;
@@ -377,33 +329,5 @@ void triggerLoop() {
   if (gotPoint) {
     _triggered();
   }
-  // #ifdef KEEP_PRESSED_MILLIS
-  // if (gotPoint) {
-  //   unsigned long now = millis();
-  //   if (lastTriggerMillis == 0) {
-  //     if (_inSpecialState) {
-  //       _inSpecialState = false;
-  //     } else { 
-  //       lastTriggerMillis = now;
-  //     }
-  //   } else {
-  //     unsigned long diffMillis = now - lastTriggerMillis;
-  //     if (diffMillis >= KEEP_PRESSED_MILLIS) {
-  //       _inSpecialState = true;
-  //     }
-  //   }
-  // } else {
-  //   lastTriggerMillis = 0;
-  // }  
-  // #else
-  // if (gotPoint) {
-  //   unsigned long now = millis();
-  //   unsigned long diffMillis = now - lastTriggerMillis;
-  //   lastTriggerMillis = now;
-  //   if (diffMillis >= 200) {
-  //     _showIP = !_showIP;
-  //   }
-  // }
-  // #endif
 #endif
 }

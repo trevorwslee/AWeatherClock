@@ -18,13 +18,6 @@
 #define CHECK_ALARM_ALLOWANCE_SECONDS -15
 
 
-// #if defined(ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
-//   #define USE_TASK_FOR_ALARM_SOUND
-// #endif
-// #if defined(ESP32)
-//   #define USE_TASK_FOR_ALARM_SOUND
-// #endif
-
 
 Alarm _alarms[NUM_ALARMS];
 int _nextAlarmDueIdx = -1;
@@ -34,12 +27,6 @@ long _alarmDueMillis = -1;
 CurrTime _lastAlarmDueTime;
 long _lastAlarmBeepMillis;
 bool _lastDisplayInverted = false;
-
-
-// #if defined(USE_TASK_FOR_ALARM_SOUND)
-// volatile bool _alarmSoundingWithTask = false;
-// volatile bool _adhocSoundingMelody = false;
-// #endif
 
 
 
@@ -117,56 +104,6 @@ const char* getAlarmSoundSelectText(int alarmSoundIdx) {
 
 
 #if defined(USE_TASK_FOR_ALARM_SOUND)
-// void _adhocSoundMelody(void* param) {
-//   int melodyIdx = (int) param;
-//   AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
-//   soundAlarm([](void*){ return !_adhocSoundingMelody; }, nullptr, AlarmPreferredType::Melody, melodyIdx);
-//   vTaskDelete(NULL);
-// }
-// void _soundAlarmTaskFunc(void* param) {
-//   if (_dueAlarmIdx != -1) {
-//     Alarm& alarm = _alarms[_dueAlarmIdx];
-//     AlarmPreferredType preferAlarmType = AlarmPreferredType::Beeps;
-//     int alarmParam = -1;
-//     if (alarm.alarmSoundIdx > 0) {
-//       int melodyIdx = alarm.alarmSoundIdx - 1;
-//       if (melodyIdx >= 0 && melodyIdx < NumMelodies) {
-//         preferAlarmType = AlarmPreferredType::Melody;
-//         alarmParam = melodyIdx;
-//       }
-//   #if defined(ES8311_PA)
-//       else {
-//         preferAlarmType = AlarmPreferredType::Music;
-//         alarmParam = 0;
-//       }
-//   #endif  
-//     }
-//     soundAlarm([](void*){ return !_alarmSoundingWithTask; }, nullptr, preferAlarmType, alarmParam);
-//   }
-//   vTaskDelete(NULL);
-// }
-// bool startAdhocSoundMelody(int melodyIdx) {
-//   // if (_adhocSoundingMelody || _alarmSoundingWithTask) {
-//   //   return false;
-//   // }
-//   // _adhocSoundingMelody = true;
-//   // xTaskCreate(
-//   //     _adhocSoundMelody,         
-//   //     "AdhocSoundMelodyTask",    
-//   //     10240,                
-//   //     (void*) melodyIdx,                 
-//   //     configMAX_PRIORITIES - 1,
-//   //     NULL                  
-//   // );
-//   return true;
-// }
-// void stopAdhocSoundMelody() {
-//   //_adhocSoundingMelody = false;
-// }
-// bool isSoundingAdhocMelody() {
-//   //return _adhocSoundingMelody;
-//   return true;
-// }
 void adhocStartAlarmSound(int alarmSoundIdx) {
   Serial.print("!!! adhocStartAlarmSound ... alarmSoundIdx: ");
   Serial.println(alarmSoundIdx);
@@ -337,16 +274,6 @@ void _forceSetDebugAlarms() {
   //eeprompt_saveAlarms();
 }
 
-// long _alarmBeep() {
-//   long usedMillis = 0;
-//   for (int i = 0; i < _NumBeeps; i++) {
-//     _Beep& beep = _Beeps[i];
-//     playTone(beep.freq, beep.durationMillis);
-//     usedMillis += beep.durationMillis;
-//   }
-//   return usedMillis;
-// }
-
 bool alarmsLoop() {
   if (millis() < BLACK_OUT_MILLIS) {
     return false;
@@ -366,17 +293,6 @@ bool alarmsLoop() {
       _lastDisplayInverted = !_lastDisplayInverted;
       invertDisplay(displayHandle, _lastDisplayInverted);
 #if defined(USE_TASK_FOR_ALARM_SOUND)
-      //   Serial.println("!!! create sound alarm task !!!");
-      //   _alarmSoundingWithTask = true;
-      //   xTaskCreate(
-      //       _soundAlarmTaskFunc,         
-      //       "SoundAlarmTask",    
-      //       10240,                
-      //       NULL,                 
-      //       configMAX_PRIORITIES - 1,
-      //       NULL                  
-      //   );
-      // }
 #else
       playAlarmBeep();
 #endif      
@@ -406,10 +322,6 @@ bool alarmsLoop() {
     bool alarmDue = alarm.hour == currTime.hour && alarm.minute == currTime.minute;
     if (alarmDue) {
       _dueAlarmIdx = _nextAlarmDueIdx;
-      // if (alarm.weekDayMask == 0) {
-      //   alarm.enabled = false; // one-time alarm
-      //   eeprompt_saveAlarm(_dueAlarmIdx/*_nextAlarmDueIdx*/);
-      // }
       _alarmDueMillis = millis();
       _lastAlarmDueTime = currTime;
       _lastAlarmBeepMillis = -1;
