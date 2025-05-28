@@ -15,13 +15,16 @@
 #elif defined(CST816S_SDA)
   #include <CST816S.h>
   CST816S touch(CST816S_SDA, CST816S_SCL, CST816S_RST, CST816S_INT);	// sda, scl, rst, irq
-#elif defined(FT_TP_SCL)
+#elif defined(FT6236_SCL)
+  #include "FT6236.h"
+  FT6236 ts = FT6236();
+#elif defined(FT6336_INT)
   #include <Wire.h>
   #include "FT6336U.h"
   #if defined(ESP32)
-    FT6336U touchpad(FT_TP_SDA, FT_TP_SCL, FT_TP_RST, FT_TP_INT);
+    FT6336U touchpad(FT6336_SDA, FT6336_SCL, FT6336_RST, FT6336_INT);
   #else
-    FT6336U touchpad(/*FT_TP_SDA, FT_TP_SCL, */FT_TP_RST, FT_TP_INT);
+    FT6336U touchpad(FT6336_RST, FT6336_INT);
   #endif  
 #elif defined(GT911_TP_SCL)  
   #include "TAMC_GT911.h"
@@ -29,24 +32,13 @@
 #elif defined(XPT2046_MOSI)
   #include <XPT2046_Bitbang.h>
   XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
-  //#include <XPT2046_Touchscreen.h>
-  //XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
-  // #include <TFT_Touch.h>
-  // TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
 #elif defined(XPT2046_IRQ)
-  // #include <XPT2046_Bitbang.h>
-  // XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
   #include <XPT2046_Touchscreen.h>
-  SPIClass ts_spi(HSPI);
+  SPIClass ts_spi(VSPI);
   XPT2046_Touchscreen ts(XPT2046_CS/*, XPT2046_IRQ*/);
-  //#include <TFT_Touch.h>
-  // TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
 #elif defined(XPT2046_CS)
-  // #include <XPT2046_Bitbang.h>
-  // XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
-  //#include <XPT2046_Touchscreen.h>
   #include <TFT_Touch.h>
-  TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK,XPT2046_DIN, XPT2046_DOUT);
+  TFT_Touch touch = TFT_Touch(XPT2046_CS, XPT2046_CLK, XPT2046_DIN, XPT2046_DOUT);
 #elif defined(FOR_TWATCH)
   #include <LilyGoWatch.h>
   //#define KEEP_PRESSED_MILLIS 1000
@@ -87,7 +79,7 @@ void  _triggered() {
       // }
       return;
     }
-  #elif defined(FT_TP_SCL)
+  #elif defined(FT6336_INT)
     if (false) {
       Serial.print("### FT6336U TD Status: ");
       Serial.println(touchpad.read_td_status());
@@ -113,7 +105,7 @@ void  _triggered() {
       return;
     }
   #endif
-  #if defined(BUTTON_PIN) || defined(GT911_TP_SCL) || defined(FOR_TWATCH)
+  #if defined(BUTTON_PIN) || defined(GT911_TP_SCL) || defined(FT6236_SCL) || defined(FOR_TWATCH)
     // debounce
     unsigned long diffMillis = millis() - _lastTriggerMillis;
     if (_lastTriggerMillis != 0 && diffMillis < CLICK_THRESHOLD_MILLIS) {
@@ -188,6 +180,9 @@ void triggerSetup() {
     Serial.print("***** Touch Firmware Version: ");
     Serial.println(version);
   }
+#elif defined(TOUCH_PIN_INT)
+		pinMode(TOUCH_PIN_INT, INPUT);
+		attachInterrupt(digitalPinToInterrupt(TOUCH_PIN_INT), _triggered, FALLING);
 #elif defined(CST816S_SDA)
   touch.begin();
   //touch.disable_auto_sleep();
@@ -205,44 +200,44 @@ void triggerSetup() {
   // touch.disable_auto_sleep();
   // Serial.println("Auto sleep disabled");    
   }
-#elif defined(FT_TP_SCL)
+#elif defined(FT6236_SCL)
+  ts.begin(40, FT6236_SDA, FT6236_SCL);
+#elif defined(FT6336_INT)
   //pinMode(FT_TP_INT, INPUT_PULLUP);
   #if !defined(ESP32)
-    Wire.setSDA(FT_TP_SDA);  // FT6336U will use Wire
-    Wire.setSCL(FT_TP_SCL);
+    Wire.setSDA(FT6336_SDA);  // FT6336U will use Wire
+    Wire.setSCL(FT6336_SCL);
   #endif  
   touchpad.begin();
-  attachInterrupt(digitalPinToInterrupt(FT_TP_INT), _triggered, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(FT6336_INT), _triggered, CHANGE);
 #elif defined(GT911_TP_SCL)  
   touchpad.begin(GT911_ADDR1);  // sometimes, need to use the backup GT911_ADDR2
   touchpad.setRotation(ROTATION_NORMAL);
 #elif defined(XPT2046_MOSI)
   touchscreen.begin();
-  //ts.begin(SPI);
-  //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
-  // touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
-  // touch.setRotation(1);
-  // ts.begin();
-  // ts.setRotation(1);
+  touchscreen.setCalibration(0, 239, 0, 319);
 #elif defined(XPT2046_IRQ)
   //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
   // touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
   // touch.setRotation(1);
+
 
   // TODO: not working
   #define TP_CLK   25
   #define TP_MOSI  32
   #define TP_MISO  39
   ts_spi.setFrequency(2500000);
-  //ts_spi.begin(TP_CLK, 39/*TP_MISO*/, -1/*TP_MOSI*/, XPT2046_CS);
+  ts_spi.begin(TP_CLK, TP_MISO, TP_MOSI, XPT2046_CS);
   ts.begin(ts_spi);
 
   //ts.begin();
-  ts.setRotation(1);
+  ts.setRotation(0);
 #elif defined(XPT2046_CS)
   //touch.setCal(481, 3395, 755, 3487, 320, 240, 1);
   //touch.setCal(0, 4095, 0, 4095, 320, 240, 1);
-  touch.setRotation(1);
+  //touch.setCal(0, 239, 0, 319, 320, 240, 1);
+  //touch.setRotation(1);
+  touch.setCal(526, 3443, 750, 3377, 320, 240, 1);
 #endif
 }
 
@@ -295,11 +290,13 @@ void triggerLoop() {
 #elif defined(XPT2046_MOSI)
   TouchPoint touch = touchscreen.getTouch();
   // Display touches that have a pressure value (Z)
-  if (touch.zRaw != 0 && (touch.x != 0 || touch.y != 0)) {
+  if (touch.zRaw != 0/* && (touch.x != 0 || touch.y != 0)*/) {
     Serial.print("Touch at X: ");
     Serial.print(touch.x);
     Serial.print(", Y: ");
-    Serial.println(touch.y);
+    Serial.print(touch.y);
+    Serial.print(", Z: ");
+    Serial.println(touch.zRaw);
   }
 #elif defined(XPT2046_IRQ)
   if (ts.touched()) {
@@ -322,6 +319,23 @@ void triggerLoop() {
 
     Serial.print(X_Coord); Serial.print(","); Serial.println(Y_Coord);
   } 
+#elif defined(FT6236_SCL)
+  if (false) {
+    if (ts.touched())
+    {
+        // Retrieve a point
+        TS_Point p = ts.getPoint();
+
+        // Print coordinates to the serial output
+        Serial.print("X Coordinate: ");
+        Serial.println(p.x);
+        Serial.print("Y Coordinate: ");
+        Serial.println(p.y);
+    }
+  }  
+  if (ts.touched()) {
+    _triggered();
+  }
 #elif defined(FOR_TWATCH)
   TTGOClass *ttgo = TTGOClass::getWatch();
   int16_t x, y;

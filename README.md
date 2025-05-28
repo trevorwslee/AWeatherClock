@@ -347,8 +347,9 @@ There are several areas to consider for customizing `AWeatherClock` for new hard
   - ILI9341 with [Adafruit_ILI9341](https://github.com/adafruit/Adafruit_ILI9341)
   - LCD Screen of TWatch (`TW3`)
 * Button or touch screen. For touch screen, the out-of-the-box configured touch screens are
-  - FT6336U with [Arduino FT6336U](https://github.com/aselectroworks/Arduino-FT6336U)
   - CST816T with [cst816t](https://github.com/koendv/cst816t)
+  - FT6236 with [FT6236](https://github.com/DustinWatts/FT6236)
+  - FT6336U with [Arduino FT6336U](https://github.com/aselectroworks/Arduino-FT6336U)
 * Buzzer or audio module. For audio module, the out-of-the-box configured audio module is
   - ES8311 with [arduino audio driver](https://github.com/pschatzmann/arduino-audio-driver) and [arduino audio tools](https://github.com/pschatzmann/arduino-audio-tools)
 
@@ -483,10 +484,14 @@ Normally, customizing for `BUTTON` or `TOUCH SCREEN` code modifications should b
   #include "cst816t.h"
   TwoWire tpWire(CST_TP_BUS_NUM);
   cst816t touchpad(tpWire, CST_TP_RST, CST_TP_INT);
-#elif defined(FT_TP_SCL)
+#elif defined(FT6336_INT)
   #include <Wire.h>
   #include "FT6336U.h"
-  FT6336U touchpad(/*FT_TP_SDA, FT_TP_SCL, */FT_TP_RST, FT_TP_INT);
+  #if defined(ESP32)
+    FT6336U touchpad(FT6336_SDA, FT6336_SCL, FT6336_RST, FT6336_INT);
+  #else
+    FT6336U touchpad(FT6336_RST, FT6336_INT);
+  #endif 
 #elif defined(GT911_TP_SCL)  
   #include "TAMC_GT911.h"
   TAMC_GT911 touchpad = TAMC_GT911(GT911_TP_SDA, GT911_TP_SCL, GT911_TP_INT, GT911_TP_RST, GT911_TP_WIDTH, GT911_TP_HEIGHT);
@@ -500,12 +505,15 @@ void triggerSetup() {
 #elif defined(CST_TP_BUS_NUM)
   tpWire.begin(CST_TP_SDA, CST_TP_SCL);
   touchpad.begin(mode_motion);
-#elif defined(FT_TP_SCL)
-  Wire.setSDA(FT_TP_SDA);            // FT6336U will use Wire
-  Wire.setSCL(FT_TP_SCL);
+#elif defined(FT6336_INT)
+  //pinMode(FT_TP_INT, INPUT_PULLUP);
+  #if !defined(ESP32)
+    Wire.setSDA(FT6336_SDA);  // FT6336U will use Wire
+    Wire.setSCL(FT6336_SCL);
+  #endif  
   touchpad.begin();
-  attachInterrupt(digitalPinToInterrupt(FT_TP_INT), _triggered, CHANGE);
-  ...
+  attachInterrupt(digitalPinToInterrupt(FT6336_INT), _triggered, CHANGE);
+   ...
 }
 ...
 ```

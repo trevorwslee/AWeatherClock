@@ -63,10 +63,10 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define TFT_RST     20
   #define TFT_X_OFF   40
   #define TFT_UN_INVERTED
-  #define FT_TP_SCL   5 
-  #define FT_TP_SDA   4
-  #define FT_TP_INT   6
-  #define FT_TP_RST   7
+  #define FT6336_INT   6
+  #define FT6336_SCL   5
+  #define FT6336_SDA   4
+  #define FT6336_RST   7
   #define BUZZER_PIN  15
 #elif defined(FOR_ESP_SPARKBOT)
   #define TFT_BL          46
@@ -136,22 +136,22 @@ const uint32_t EEPROM_HEADER = 20250505;
   #define TFT_MOSI    13
   #define TFT_MISO    -1
   #define TFT_X_OFF   40
+  #define FT6236_SCL   32
+  #define FT6236_SDA   33
+  #define FT6236_INT   36
+  #define FT6236_RST   25
   // #define XPT2046_CS    33
   // #define XPT2046_CLK   25
   // #define XPT2046_MOSI  32
   // #define XPT2046_MISO  39
-  // #define XPT2046_CS       33
-  // #define XPT2046_IRQ      36  
-  // #define XPT2046_CS        33
-  // #define XPT2046_CLK       25
-  // #define XPT2046_DIN       32
-  // #define XPT2046_DOUT      39
-  // #define CST_TP_BUS_NUM  0 
-  // #define CST_TP_SCL      32
-  // #define CST_TP_SDA      33
-  // #define CST_TP_RST      25
-  // #define CST_TP_INT      36
-  #define BUTTON_PIN  0    // boot
+  // #define XPT2046_CS          33
+  // #define XPT2046_IRQ         36   
+  // #define XPT2046_CS   33
+  // #define XPT2046_CLK  25
+  // #define XPT2046_DIN  32
+  // #define XPT2046_DOUT 39
+  //#define TOUCH_PIN_INT 36
+  //#define BUTTON_PIN  0    // boot
 #elif defined(FOR_ESP32)
   #define TFT_BL      18 /*blk*/       
   #define TFT_CS      15
