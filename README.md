@@ -30,7 +30,7 @@ Nevertheless, the sketch of `AWeatherClock` should be adaptable to other hardwar
 The functions of `AWeatherClock` are:
 * Display of a digital clock synchronized with NTP
 * Display of the current weather info gathered from [OpenWeather](https://home.openweathermap.org/) with ***version 2.5*** APIs [for [free account](https://openweathermap.org/full-price#onecall)]
-* Alarms that can be repeated daily, with selectable days [of the week] for the repeat
+* Alarms that can be repeated daily, with selectable days [of the week] for the repeat. Note that if hardware permits, alarm sound (beep / melody / music) can be produced when alarm is due.
 * Idle slideshow of photos (JPEG images) uploaded to the MCU, much like the slideshow function as described by  [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
 
 `AWeatherClock` requires hardware with the following capabilities:
@@ -46,7 +46,7 @@ please, ***sign up*** for an `APP_ID` of their ***version 2.5*** APIs.
 You will need this `APP_ID` in order to setup for `AWeatherClock` -- please refer to the section [Basic Hardcoded Configurations](#basic-hardcoded-configurations----configh)
 
 Also, [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay)
-for Android phone (or Android simulator etc) is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone with the help of DumbDisplay Android app
+for Android phone (or Chrome OS / Android simulator etc) is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone with the help of DumbDisplay Android app
 * Photos to upload can be acquired in the following ways:
   - randomly from the Internet
     * [picsum.photos](https://picsum.photos/)
@@ -105,24 +105,25 @@ The sketch `arduino_weather_clock.ino` of this project is tailored for various c
   - a speaker is attached to it; the speaker is used to generate alarm sound 
   - for more details, please refer to the later section [Customizations for New Hardware ESP32 Example](#customizations-for-new-hardware-esp32-example)
 
-Notes:
-* How many slides can be stored in the MCU? Say,
-  - for `PYCLOCK` which is an ESP32-C3 with 4M of flash memory, I can store 25 to 30 photos to the flash of the MCU; note that for `PYCLOCK`, it is configured to use `no_ota.csv` partitions in `platformio.ini` like
-    ```
-    board_build.partitions = no_ota.csv
-    ``` 
-  - for Raspberry Pi Pico, I can also store 25 to 30 photos to the flash of the MCU as well; note that for Raspberry Pi Pico, `littlefs` is configured in `platformio.ini` like
-    ```
-    board_build.filesystem = littlefs
-    board_build.filesystem_size = 1m
-    ```
+How many slides can be stored in the MCU?
+- E.g., for `PYCLOCK` which is an ESP32-C3 with 4M of flash memory, I can store 25 to 30 photos to the flash of the MCU; note that for `PYCLOCK`, it is configured to use `no_ota.csv` partitions in `platformio.ini` like
+  ```
+  board_build.partitions = no_ota.csv
+  ``` 
+- E.g., for Raspberry Pi Pico, I can also store 25 to 30 photos to the flash of the MCU as well; note that for Raspberry Pi Pico, `littlefs` is configured in `platformio.ini` like
+  ```
+  board_build.filesystem = littlefs
+  board_build.filesystem_size = 1m
+  ```
+
+Additional notes:
 * For TWatch (`TW3`): If when compile you see some "include font" error, it might be that the project's folder path is too long.
   In such a case, try move the project to somewhere closer to the "root" of your filesystem 
 
 
-# Showing of IP
+# Showing of IP and Connecting DumbDisplay Android App
 
-With `BUTTON` or `TOUCH SCREEN`, you can trigger `AWeatherClock` to show the IP of your MCU to connect to with your Android DumbDisplay app
+With `BUTTON` or `TOUCH SCREEN`, you can trigger `AWeatherClock` to show the IP of your MCU to connect to with Android DumbDisplay app
 
 |  |  |
 |--|--|
@@ -149,7 +150,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 |--|--|
 |With the `General` tab, you can modify the general settings / options|<div style='width:500px;height:800px'>![](imgs/tab_general_00.jpg)</div>|
 
-* `🌤️` -- you click the `🌤️` button to trigger refresh of the current weather info
+* `🌤️` -- you click the `🌤️` button to [manually] trigger refresh of the current weather info
 * `12 Hour` / `24 Hour` -- you select whether the digital clock display should be in 12-hour or 24-hour format
 * `📡` -- you select whether to sync weather location with the GPS location of your phone
 * `Slide Show Idle` -- you select the idle time (in minutes) before starting slideshow; to disable idle slideshow, select `🚫`
@@ -184,7 +185,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 With the `Slides` tab, you can add / remove photos for the idle slideshow
 * `⬅️` / `➡️` -- you use the `⬅️` / `➡️` buttons to review the slideshow photos
   - you select the photo to be deleted from the slideshow
-  - newly uploaded photo can be saved to the slideshow after the photo selected
+  - newly uploaded photo can be saved to the slideshow, positioned after the photo selected
 * `💾` / `🗑️` -- you delete the photo shown by double-pressing `🗑️`; the `💾` is for you to add the uploaded photo to the slideshow
 * Acquire photo to upload:
   - `🌍` / `💦` -- you trigger download of a random photo from the Internet by pressing `🌍`; `💦` is specifically for downloading a random photo from Unsplash     
@@ -197,9 +198,10 @@ With the `Slides` tab, you can add / remove photos for the idle slideshow
 
 As mentioned previously, in addition to flashing of the screen, in case of audible alarm sound can be generated with buzzer / speaker / audio module (ES8311 for ESP32), alarm-specific selection will be available
 - `Beep` sound -- with buzzer / speaker / audio module 
-- Melody `Amazing Grace` (for ESP32) -- similar to what described by the YouTube video [Raspberry Pi Pico playing song melody tones, with DumbDisplay control and keyboard input](https://www.youtube.com/watch?v=l-HrsJXIwBY)
+- Melody `Amazing Grace` (for ESP32) -- the same melody encoding as mentioned in the YouTube video [Raspberry Pi Pico playing song melody tones, with DumbDisplay control and keyboard input](https://www.youtube.com/watch?v=l-HrsJXIwBY)
+  and in the post [Respberry Pi Pico W Generating Tones With Programmable I/O (PIO) Using MicroPython](https://www.instructables.com/Respberry-Pi-Pico-W-Generating-Tones-With-Programm/)
 
-- Melody `Birthday Song` (for ESP32) -- similar to above melody `Amazing Grace`, but musical notes generated with LLM
+- Melody `Birthday Song` (for ESP32) -- similar to above melody `Amazing Grace`, but musical note encoding was generated with LLM
   `happy_birthday_melody.h`  
   ```
   I asked LLM to generate this file's "happy birthday" melody.
@@ -275,7 +277,7 @@ Notes:
 ...
 ```
 Notes:
-* For ESP32 line of MCU, it is not a must to define `WIFI_SSID` / `WIFI_PASSWORD`. In case not defined, [WiFiManager](https://github.com/tzapu/WiFiManager) will be used to acquire the WiFi credential. Say, you connect to the AP set up by WiFiManager running on your MCU, with AP name `AWClock`, as defined by `AUTOCONNECT_AP_NAME` in `config.h`
+* For ESP32 line of MCU, it is not a must to define `WIFI_SSID` / `WIFI_PASSWORD`. In case not defined, [WiFiManager](https://github.com/tzapu/WiFiManager) will be used to acquire WiFi credential. Say, you connect to the AP set up by WiFiManager running on your MCU, with AP name `AWClock`, as defined by `AUTOCONNECT_AP_NAME` in `config.h`
 * However, you ***MUST*** set your own `OPEN_WEATHER_MAP_APP_ID` for ***version 2.5*** APIs which you can apply for from [OpenWeather](https://home.openweathermap.org/users/sign_up),
   say with a [free account](https://openweathermap.org/full-price#onecall)
 * Optionally, you can sign up and create an app to get Access Key from [Unsplash](https://unsplash.com/developers); with `UNSPLASH_CLIENT_ID` defined,
@@ -306,7 +308,7 @@ Notes:
 ...
 ```
 Notes:
-* `INIT_TIMEZONE` -- the initial timezone; as mentioned previously; your MCU's timezone will eventually sync with that returned from 'get current weather' API 
+* `INIT_TIMEZONE` -- the initial timezone; as mentioned previously; your MCU's timezone will eventually be synchronized with that returned from 'get current weather' API 
 * `DEF_OPEN_WEATHER_API_LOCATION` -- the location (see [ISO 3166 country codes](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes))
   for the initial current weather info; note that when connected to DumbDisplay Android app, your phone's GPS location can be the
   location for getting current weather info
@@ -345,7 +347,7 @@ There are several areas to consider for customizing `AWeatherClock` for new hard
 * TFT LCD screen. The out-of-the-box configured TFT LCD screens are
   - ST7789 with [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library.git)
   - ILI9341 with [Adafruit_ILI9341](https://github.com/adafruit/Adafruit_ILI9341)
-  - LCD Screen of TWatch (`TW3`)
+  - LCD Screen of TWatch (`TW3`) -- [TTGO_TWatch_Library](https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library)
 * Button or touch screen. For touch screen, the out-of-the-box configured touch screens are
   - CST816T with [cst816t](https://github.com/koendv/cst816t)
   - FT6236 with [FT6236](https://github.com/DustinWatts/FT6236)
