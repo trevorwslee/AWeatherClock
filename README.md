@@ -1,5 +1,8 @@
 # Arduino Weather Clock -- `AWeatherClock` -- v1.1
 
+![](imgs/awc.png)
+
+
 
 - [Arduino Weather Clock -- `AWeatherClock` -- v1.1](#arduino-weather-clock----aweatherclock----v11)
 - [Out-of-the-Box Supported Hardware](#out-of-the-box-supported-hardware)
@@ -19,11 +22,9 @@
 
 
 
-![](imgs/awc.png)
+This little microcontroller project `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock), and is implemented using the Arduino framework.
 
-This [little microcontroller project](https://github.com/trevorwslee/AWeatherClock) `AWeatherClock` (Arduino Weather Clock) was inspired by [pyClock](https://github.com/01studio-lab/pyClock), and is implemented using the Arduino framework.
-
-VSCode with PlatformIO extension is the primarily development environment for the project, in the similar fashion as described by the post -- [A Way to Run Arduino Sketch With VSCode PlatformIO Directly](https://www.instructables.com/A-Way-to-Run-Arduino-Sketch-With-VSCode-PlatformIO/) 
+VSCode with PlatformIO extension is the primarily development environment for the project, in the similar fashion as described by the post [A Way to Run Arduino Sketch With VSCode PlatformIO Directly](https://www.instructables.com/A-Way-to-Run-Arduino-Sketch-With-VSCode-PlatformIO/) 
 
 |  |  |
 |--|--|
@@ -63,15 +64,15 @@ You may want to refer to [Blink Test With Virtual Display, DumbDisplay](https://
 for a bit more details about  [DumbDisplay Arduino library](https://github.com/trevorwslee/Arduino-DumbDisplay) and [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay).
 
 
-Indeed, there are many [external] data `AWeatherClock` would need to acquire (including the *weather situation icon* PNG file) -- some from the Internet; some via DumbDisplay Android app; some from the Internet via DumbDisplay Android app
+Indeed, there is a few [external] data `AWeatherClock` would need to acquire (including the *weather situation icon* PNG file) -- some from the Internet; some via DumbDisplay Android app; some from the Internet via DumbDisplay Android app
 
-* NTP timezone
+* NTP time with proper timezone
   - the initial timezone of your MCU is hardcoded to the macro `INIT_TIMEZONE` defined in `config.h`
   - after weather info gathering, timezone of your MCU is set to the timezone returned with the weather info
-* Location for weather info
+* Weather info of proper location, which can be found out as:
   - according to hardcode query string (`DEF_OPEN_WEATHER_API_LOCATION` defined in `config.h`), or
   - based on GPS location of your phone queried via DumbDisplay Android app  
-* Photos to upload can be acquired in the following ways:
+* Slideshow photos, which can be retrieved in the following ways:
   - randomly from the Internet
     * [picsum.photos](https://picsum.photos/)
     * [loremflickr.com](https://loremflickr.com/#google_vignette)
@@ -294,6 +295,7 @@ Moreover, you might have new hardware that you want to customized `AWeatherClock
 ...
 ```
 Notes:
+* You define secrets like `WIFI_SSID`, `WIFI_PASSWORD` and `OPEN_WEATHER_MAP_APP_ID` in `_secret.h`, as hinted above
 * For ESP32 line of MCU, it is not a must to define `WIFI_SSID` / `WIFI_PASSWORD`. In case not defined, [WiFiManager](https://github.com/tzapu/WiFiManager) will be used to acquire WiFi credential. Say, you connect to the AP set up by WiFiManager running on your MCU, with AP name `AWClock`, as defined by `AUTOCONNECT_AP_NAME` in `config.h`
 * However, you ***MUST*** set your own `OPEN_WEATHER_MAP_APP_ID` for ***version 2.5*** APIs which you can apply for from [OpenWeather](https://home.openweathermap.org/users/sign_up),
   say with a [free account](https://openweathermap.org/full-price#onecall)
