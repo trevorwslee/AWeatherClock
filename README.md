@@ -1,15 +1,23 @@
----
-title: A Weather Clock (with Alarms) for ESP32 / Raspberry Pi Pico Implemented with Arduino Framework
-description: Arduino Weather Clock is a weather digital clock (with alarms) for ESP32 / Raspberry Pi PicoW implemented with the Arduino framework
-tags: 'esp32, raspberrypipico, clock, arduino'
-cover_image: ./imgs/awc.jpg
-published: true
-id: 2473584
-date: '2025-05-10T03:47:25Z'
----
-
-
 # Arduino Weather Clock -- `AWeatherClock` -- v1.1
+
+
+- [Arduino Weather Clock -- `AWeatherClock` -- v1.1](#arduino-weather-clock----aweatherclock----v11)
+- [Out-of-the-Box Supported Hardware](#out-of-the-box-supported-hardware)
+- [Showing of IP and Connecting DumbDisplay Android App](#showing-of-ip-and-connecting-dumbdisplay-android-app)
+- [Settings UI](#settings-ui)
+  - [Settings UI -- General](#settings-ui----general)
+  - [Settings UI -- Alarms](#settings-ui----alarms)
+  - [Settings UI -- Slides](#settings-ui----slides)
+  - [Alarm Sound](#alarm-sound)
+- [Configurations and Customization](#configurations-and-customization)
+  - [Basic Hardcoded Configurations -- `config.h`](#basic-hardcoded-configurations----configh)
+  - [System Hardcoded Configurations -- `sys_config.h`](#system-hardcoded-configurations----sys_configh)
+  - [Customizations for New Hardware Highlights](#customizations-for-new-hardware-highlights)
+  - [Customizations for New Hardware PicoW Example](#customizations-for-new-hardware-picow-example)
+  - [Customizations for New Hardware ESP32 Example](#customizations-for-new-hardware-esp32-example)
+- [Enjoy!](#enjoy)
+
+
 
 ![](imgs/awc.png)
 
@@ -46,7 +54,23 @@ please, ***sign up*** for an `APP_ID` of their ***version 2.5*** APIs.
 You will need this `APP_ID` in order to setup for `AWeatherClock` -- please refer to the section [Basic Hardcoded Configurations](#basic-hardcoded-configurations----configh)
 
 Also, [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay)
-for Android phone (or Chrome OS / Android simulator etc) is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone with the help of DumbDisplay Android app
+for Android phone (or Chrome OS / Android simulator etc) is an essential part of `AWeatherClock` since most settings -- including alarm setups and slideshow photos upload -- can be done with remote UI realized on your Android phone with the help of DumbDisplay Android app.
+
+Notice that the remote UI on your Android phone is driven by the sketch -- i.e. the control flow of the UI is programmed in the sketch -- hence, other than the DumbDisplay Android app, there is no specific mobile app for `AWeatherClock`. 
+
+
+You may want to refer to [Blink Test With Virtual Display, DumbDisplay](https://www.instructables.com/Blink-Test-With-Virtual-Display-DumbDisplay/)
+for a bit more details about  [DumbDisplay Arduino library](https://github.com/trevorwslee/Arduino-DumbDisplay) and [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay).
+
+
+Indeed, there are many [external] data `AWeatherClock` would need to acquire (including the *weather situation icon* PNG file) -- some from the Internet; some via DumbDisplay Android app; some from the Internet via DumbDisplay Android app
+
+* NTP timezone
+  - the initial timezone of your MCU is hardcoded to the macro `INIT_TIMEZONE` defined in `config.h`
+  - after weather info gathering, timezone of your MCU is set to the timezone returned with the weather info
+* Location for weather info
+  - according to hardcode query string (`DEF_OPEN_WEATHER_API_LOCATION` defined in `config.h`), or
+  - based on GPS location of your phone queried via DumbDisplay Android app  
 * Photos to upload can be acquired in the following ways:
   - randomly from the Internet
     * [picsum.photos](https://picsum.photos/)
@@ -56,20 +80,9 @@ for Android phone (or Chrome OS / Android simulator etc) is an essential part of
     * for downloading photos from [unsplash.com](https://unsplash.com/), you will need to [sign up](https://unsplash.com/developers) and create a demo app for an `Access Key` 
   - pick from your phone
   - take with your phone's camera  
-* Location for weather info
-  - according to hardcode query string (`DEF_OPEN_WEATHER_API_LOCATION` defined in `config.h`), or
-  - based on GPS location of your phone queried via DumbDisplay Android app  
-* NTP timezone
-  - the initial timezone of your MCU is hardcoded to the macro `INIT_TIMEZONE` defined in `config.h`
-  - after weather info gathering, timezone of your MCU is set to the timezone returned with the weather info
 * When connected to DumbDisplay Android app, `AWeatherClock` is considered not idle, and hence slideshow will not start      
 
-Notice that the remote UI on your Android phone is driven by the sketch -- i.e. the control flow of the UI is programmed in the sketch -- hence, other than the DumbDisplay Android app, there is no specific mobile app for `AWeatherClock`. 
-
-You may want to refer to [Blink Test With Virtual Display, DumbDisplay](https://www.instructables.com/Blink-Test-With-Virtual-Display-DumbDisplay/)
-for a bit more details about  [DumbDisplay Arduino library](https://github.com/trevorwslee/Arduino-DumbDisplay) and [DumbDisplay Android app](https://play.google.com/store/apps/details?id=nobody.trevorlee.dumbdisplay).
-
-Concerning "sounding" of alarm. Actually `AWeatherClock` not only will flash the screen when alarm is due,
+Concerning alarm sound. Actually `AWeatherClock` not only will flash the screen when alarm is due,
 if buzzer / speaker / audio module (ES8311 for ESP32) is installed, audible alarm-specific sound will be generated.
 Please refer to [Alarm Sound](#alarm-sound) for more details.
 
@@ -144,7 +157,7 @@ With `BUTTON` or `TOUCH SCREEN`, you can trigger `AWeatherClock` to show the IP 
 As mentioned previously, most of the `AWeatherClock` settings can be modified with the UI remotely rendered on your Android phone with DumbDisplay Android app
 
 
-# Settings UI -- General
+## Settings UI -- General
 
 |  |  |
 |--|--|
@@ -158,7 +171,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
 * `Update Weather` -- you select the gap (in minutes) between each auto update of the current weather info
 
 
-# Settings UI -- Alarms
+## Settings UI -- Alarms
 
 |  |  |
 |--|--|
@@ -175,7 +188,7 @@ As mentioned previously, most of the `AWeatherClock` settings can be modified wi
     if you want to enter the time, say, `00:01`, enter `2401`    
 
 
-# Settings UI -- Slides
+## Settings UI -- Slides
 
 |  |  |  |
 |--|--|--|
@@ -194,7 +207,7 @@ With the `Slides` tab, you can add / remove photos for the idle slideshow
   - Also notice for photo that might not fit `AWeatherClock` screen, a [crop UI](https://github.com/Yalantis/uCrop) will be invoked for you to crop the photo in order to fit the screen 
   
 
-# Alarm Sound
+## Alarm Sound
 
 As mentioned previously, in addition to flashing of the screen, in case of audible alarm sound can be generated with buzzer / speaker / audio module (ES8311 for ESP32), alarm-specific selection will be available
 - `Beep` sound -- with buzzer / speaker / audio module 
@@ -238,8 +251,12 @@ Notes:
 * Additionally, slider next to `🔊` allows you to change the ES8311 audio module volume
   
 
+# Configurations and Customization
 
-# Basic Hardcoded Configurations -- `config.h`
+Even though many settings can be altered with the remote UI as mentioned previously, there are still certain hardcoded configurations can be done.
+Moreover, you might have new hardware that you want to customized `AWeatherClock` to fit into.
+
+## Basic Hardcoded Configurations -- `config.h`
 
 `config.h` for secrets like `WIFI_SSID`, `WIFI_PASSWORD` and `OPEN_WEATHER_MAP_APP_ID`
 ```
@@ -321,7 +338,7 @@ Notes:
 * `AUTO_ACK_ALARM_MINUTES` -- The number of minutes before due alarm is automatically acknowledged (stopped)
 
 
-# System Hardcoded Configurations -- `sys_config.h`
+## System Hardcoded Configurations -- `sys_config.h`
 
 The system hardcoded configuration file `sys_config.h` not only contains most hardware pin mappings (as will be mentioned in the next section 
 [Highlight for Customization for New Hardware](#highlight-for-customization-for-new-hardware));
@@ -340,7 +357,7 @@ const int32_t EEPROM_HEADER = 20250505;
 ```
 
 
-#  Customizations for New Hardware Highlights 
+##  Customizations for New Hardware Highlights 
 
 There are several areas to consider for customizing `AWeatherClock` for new hardware:
 * `platformio.ini` for configuring PlatformIO for your MCU
@@ -536,7 +553,7 @@ However, there are much more pins for the ES8311 audio module, as in `ESP_SPARKB
 ```
 * `DEF_AUDIO_VOLUME` sets the default volume of the audio module; set it if you want something different from the audio module default 
 
-#  Customizations for New Hardware PicoW Example
+##  Customizations for New Hardware PicoW Example
 
 Take the above-mentioned `PICOW` as an example -- the Raspberry Pi PicoW wiring as mentioned in [Simple Arduino Framework Raspberry Pi Pico / ESP32 TFT LCD Photo Frame Implementation With Photos Downloaded From the Internet Via DumbDisplay](https://www.instructables.com/Simple-Arduino-Framework-Raspberry-Pi-Pico-ESP32-T/)
 
@@ -651,7 +668,7 @@ void screenSetup() {
   - run the necessary code to setup the TFT LCD screen -- `tft` declared previously
 
 
-#  Customizations for New Hardware ESP32 Example
+##  Customizations for New Hardware ESP32 Example
 
 Take the above-mentioned `ESP32` as another example
 - A ST7789 1.3 inch 240x240 SPI TFT LCD module is used
@@ -701,7 +718,7 @@ build_flags =
   - [`TJpg_Decoder`](https://github.com/Bodmer/TJpg_Decoder) for decoding JPEG data (slides)
   - [`ArduinoJson`](https://github.com/bblanchon/ArduinoJson) for parsing the JSON got from OpenWeather
   - [`PNGdec`](https://github.com/bitbank2/PNGdec) for decoding the weather condition icon (PNG) retrieved from OpenWether
-  - [`WiFiManager`](https://github.com/tzapu/WiFiManager) for getting WiFi credential by setting up WiFi hotspot, when WiFi SSID / password not hard-coded
+  - [`WiFiManager`](https://github.com/tzapu/WiFiManager) for getting WiFi credential by setting up WiFi hotspot, when WiFi SSID / password not hardcoded
   - [`Arduino-DumbDisplay`](https://github.com/trevorwslee/Arduino-DumbDisplay) for driving DumbDisplay Android app for the UI remotely rendered with your Android phone
 `sys_config.h`
 ```
@@ -760,10 +777,11 @@ void screenSetup() {
 
 
 
+# Enjoy!
+
 Have fun with `AWeatherClock`!
 
 
-# Enjoy!
 
 > Peace be with you!
 > May God bless you!
