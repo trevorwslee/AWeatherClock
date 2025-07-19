@@ -26,7 +26,6 @@
   #define OPEN_WEATHER_MAP_APP_ID "<app id>"
 
   // optionally, sign up and create an app to get Access Key from https://unsplash.com/developers
-  // comment out UNSPLASH_CLIENT_ID if you do not want to use unsplash.com
   #define UNSPLASH_CLIENT_ID      "<client id>"
 
 #else

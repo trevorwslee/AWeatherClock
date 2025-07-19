@@ -78,7 +78,6 @@ Indeed, there is a few [external] data `AWeatherClock` would need to acquire (in
     * [loremflickr.com](https://loremflickr.com/#google_vignette)
     * [placedog.net](https://placedog.net/)
   - randomly from [unsplash.com](https://unsplash.com/)
-    * for downloading photos from [unsplash.com](https://unsplash.com/), you will need to [sign up](https://unsplash.com/developers) and create a demo app for an `Access Key` 
   - pick from your phone
   - take with your phone's camera  
 * When connected to DumbDisplay Android app, `AWeatherClock` is considered not idle, and hence slideshow will not start      
@@ -286,7 +285,6 @@ Moreover, you might have new hardware that you want to customized `AWeatherClock
   #define OPEN_WEATHER_MAP_APP_ID "<app id>"
 
   // optionally, sign up and create an app to get Access Key from https://unsplash.com/developers
-  // comment out UNSPLASH_CLIENT_ID if you do not want to use unsplash.com
   #define UNSPLASH_CLIENT_ID      "<client id>"
 
 #else
@@ -300,7 +298,8 @@ Notes:
 * However, you ***MUST*** set your own `OPEN_WEATHER_MAP_APP_ID` for ***version 2.5*** APIs which you can apply for from [OpenWeather](https://home.openweathermap.org/users/sign_up),
   say with a [free account](https://openweathermap.org/full-price#onecall)
 * Optionally, you can sign up and create an app to get Access Key from [Unsplash](https://unsplash.com/developers); with `UNSPLASH_CLIENT_ID` defined,
-  your are ready to download photos from Unsplash and upload them to your MCU for slideshow
+  your are ready to download photos from Unsplash and upload them to your MCU for slideshow.
+  Note that if no key is provided, DumbDisplay Android app will use it's internal limited-access key for the purpose.
 
 
 `config.h` for other basic hardcoded configurations

@@ -9,11 +9,8 @@
 #define TAKE_IMAGE_URL "take://"
 
 
-// #ifdef UNSPLASH_CLIENT_ID
-//   #define UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API (String("https://api.unsplash.com/photos/random/?client_id=") + UNSPLASH_CLIENT_ID)
-// #endif
-//#define UNSPLASH_GET_DOWNLOAD_IMAGE_API_BASE_URL "https://api.unsplash.com/photos/random/"
 
+#define SUPPORT_UNSPLASH
 
 
 namespace {
@@ -29,9 +26,9 @@ namespace {
   LcdDDLayer* fromCameraButton;
   ImageDownloadDDTunnel* imageDownloadTunnel;
   ImageRetrieverDDTunnel* imageRetrieverTunnel;
-//#ifdef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
+#ifdef SUPPORT_UNSPLASH  
   JsonDDTunnel *getDownloadImageUrlJsonTunnel;  
-//#endif
+#endif
 
   String autoPinConfig;
 
@@ -170,9 +167,6 @@ void dd_slides_setup(bool recreateLayers) {
     fromPhoneButton = createButton("📱");
     fromCameraButton = createButton("📷");
 
-//#ifndef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
-//    fromUnsplashButton->disabled(unsplashGetDownloadImageApiUrl.length() == 0);
-//#endif
     if (dumbdisplay.getCompatibilityVersion() <= 12) {
       fromCameraButton->disabled(true);
     }
@@ -194,21 +188,23 @@ void dd_slides_setup(bool recreateLayers) {
     imageDownloadTunnel = dumbdisplay.createImageDownloadTunnel("", downloadImageName);
     imageRetrieverTunnel = dumbdisplay.createImageRetrieverTunnel();
 
-#ifdef UNSPLASH_CLIENT_ID   
+#ifdef SUPPORT_UNSPLASH  
+  #ifdef UNSPLASH_CLIENT_ID   
     String unsplashGetDownloadImageApiUrl = String("https://api.unsplash.com/photos/random/?client_id=") + String(UNSPLASH_CLIENT_ID);
-#else
+  #else
     String unsplashGetDownloadImageApiUrl;
     if (dumbdisplay.getCompatibilityVersion() >= 14) {
       unsplashGetDownloadImageApiUrl = ">{DDUNSPLASHURL}/photos/random";  // use the unsplash "client-id" internal to DumbDisplay
     }
-#endif
-//#ifdef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
+  #endif
     if (unsplashGetDownloadImageApiUrl.length() > 0) {
       getDownloadImageUrlJsonTunnel = dumbdisplay.createFilteredJsonTunnel(unsplashGetDownloadImageApiUrl, "urls", false, 10); 
     } else {
-        fromUnsplashButton->disabled(true);
+      fromUnsplashButton->disabled(true);
     }
-//#endif
+#else    
+    fromUnsplashButton->disabled(true);
+#endif
   }
 
   dumbdisplay.pinAutoPinLayers(autoPinConfig, PF_TAB_LEFT, PF_TAB_TOP, PF_TAB_WIDTH, PF_TAB_HEIGHT, "T");
@@ -264,10 +260,10 @@ bool dd_slides_loop() {
       setState(DOWNLOADING_FOR_IMAGE);
       invalidateRetrieved = true;
     } else if (fromUnsplashFeedback != nullptr) {
-//#ifdef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
+#ifdef SUPPORT_UNSPLASH  
       fromUnsplashButton ->flash();
       setState(DOWNLOADING_FOR_IMAGE, "unsplash");
-//#endif
+#endif
     } else if (fromPhoneFeedback != nullptr) {
       fromInternetButton->flash();
       setState(DOWNLOADING_FOR_IMAGE, "pick");
@@ -316,13 +312,13 @@ bool dd_slides_loop() {
   }
 
   if (state == DOWNLOADING_FOR_IMAGE) {
-//#ifdef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
+#ifdef SUPPORT_UNSPLASH  
     if (stateParameters == "unsplash") {
       getDownloadImageUrlJsonTunnel->reconnect();
       stateParameters += ":";
       dumbdisplay.logToSerial("*** getting unsplash image URL -- stateParameters=" + stateParameters);
     }
-//#endif
+#endif
     setState(DOWNLOADING_IMAGE_GET_URL, stateParameters);
   }
 
@@ -336,7 +332,7 @@ bool dd_slides_loop() {
     } else if (stateParameters == "take") {
       url = TAKE_IMAGE_URL;
       enableCropUI = true;
-  //#ifdef UNSPLASH_GET_DOWNLOAD_IMAGE_URL_API  
+  #ifdef SUPPORT_UNSPLASH  
     } else if (stateParameters.startsWith("unsplash")) {
       if (!getDownloadImageUrlJsonTunnel->eof()) {
         String fieldId;
@@ -362,7 +358,7 @@ bool dd_slides_loop() {
           errorMessage = "failed to get image URL";
         }
       }
-//#endif
+#endif
     } else {
       url = getDownloadImageURL();
     }
